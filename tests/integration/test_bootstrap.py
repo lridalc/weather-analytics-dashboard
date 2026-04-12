@@ -1,24 +1,25 @@
-"""Smoke tests to verify basic application bootstrapping."""
+"""Integration tests to verify application bootstrapping and wiring."""
 
 
 def test_cli_entrypoint_help(cli_runner):
-    """Verify CLI can be invoked without import errors."""
+    """Verify CLI can be invoked without import or wiring errors."""
     result = cli_runner(["--help"])
     assert result.returncode == 0, f"CLI failed: {result.stderr}"
     assert "Usage:" in result.stdout
 
 
 def test_api_app_creation(app):
-    """Verify FastAPI app can be created without errors."""
+    """Verify FastAPI app can be created with full dependency graph."""
     assert app is not None
     assert app.title == "Weather Analytics Dashboard"
 
 
 def test_api_root_endpoint(client):
-    """Verify root endpoint responds."""
+    """Verify root endpoint responds successfully."""
     response = client.get("/")
     assert response.status_code == 200
-    assert "message" in response.json()
+    assert response.json() == {"message": "Weather Analytics Dashboard API"}
+
 
 def test_api_docs_available(client):
     """Verify OpenAPI docs are accessible."""
