@@ -68,6 +68,7 @@ Each ADR follows this structure:
 | ADR-019 | Deployment     | Containerization                 | No Docker initially                | [🔗](#adr-019-containerization-no-docker-initially) |
 | ADR-020 | Testing        | Testing strategy                 | Layered testing approach           | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
 | ADR-021 | Resilience     | Rate limiting strategy           | Global quota protection            | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
+| ADR-022 | Architecture   | Dependency injection strategy    | Composition root (manual DI)       | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
 
 ---
 
@@ -1009,6 +1010,94 @@ Implement a **Global Quota Protection (Fail Fast)** strategy at the **Infrastruc
 
 ---
 
+## ADR-022: Dependency Injection Strategy: Composition Root (Manual DI)
+
+### Status
+
+Accepted
+
+### Context
+
+The system requires dependency injection to:
+
+- Enforce **dependency inversion** (ADR-001)
+- Enable **testability** via mocks/fakes (ADR-020)
+- Allow **infrastructure substitution** (providers, repositories)
+
+Available approaches:
+
+1. Framework-driven DI (FastAPI `Depends`)
+2. External DI containers (`dependency-injector`, `punq`)
+3. Manual DI (pure Python)
+
+### Decision
+
+Use **Manual Dependency Injection via a Composition Root**.
+
+No external DI framework will be introduced.
+
+### Implementation Approach
+
+#### 1. Composition Root
+
+- Located in:
+  - `main.py` (FastAPI entrypoint)
+  - CLI bootstrap module
+- Responsible for building the **entire object graph**
+
+**Construction order:**
+
+```
+Infrastructure → Decorators → Application Services → Presentation wiring
+```
+
+#### 2. Injection Pattern
+
+- **Constructor Injection only**
+- No service locators
+- No global singletons
+
+#### 3. FastAPI Integration
+
+- FastAPI `Depends` is used **only as a retrieval mechanism**
+- Dependencies are retrieved from a pre-built container (`AppState`)
+
+**Constraint:**
+
+- `Depends` must NOT:
+  - Instantiate objects
+  - Contain business logic
+  - Perform I/O
+
+### Rationale
+
+- Aligns with Clean Architecture (explicit boundaries)
+- Keeps dependency graph **fully explicit and inspectable**
+- Avoids framework lock-in
+- Keeps complexity proportional to project size (YAGNI)
+
+### Consequences
+
+**Positive:**
+
+- Full control over object lifecycle
+- No hidden magic or runtime indirection
+- Excellent testability (direct constructor injection)
+- Debuggable and predictable
+
+**Negative:**
+
+- Manual wiring required when adding dependencies
+- Composition root can grow over time
+
+### When to Revisit
+
+- Dependency graph grows beyond ~20–30 services
+- Need for runtime/dynamic wiring based on configuration
+- Introduction of scoped lifetimes (e.g., request-scoped DB sessions)
+
+---
+
 # QUICK REFERENCE
 
 ## Technology Stack
@@ -1047,6 +1136,7 @@ Implement a **Global Quota Protection (Fail Fast)** strategy at the **Infrastruc
 | CPU-bound Work         | >50% CPU time        | [ADR-002](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) (reconsider async) |
 | Persistent API Failure | >3 failures/minute   | [ADR-009](#adr-009-retry-tenacity-with-exponential-backoff) (circuit breaker pattern) |
 | Test Suite Duration    | >25 seconds          | [ADR-020](#adr-020-testing-strategy-layered-testing-pyramid) (optimize tests) |
+| Dependency Graph Size  | >25 services         | [ADR-022](#adr-022-dependency-injection-strategy-composition-root-manual-di) (consider DI container) |
 
 ---
 
@@ -1075,3 +1165,4 @@ Implement a **Global Quota Protection (Fail Fast)** strategy at the **Infrastruc
 | 2026-04-09 | ADR-019 | No Docker Initially                               | Accepted   | [🔗](#adr-019-containerization-no-docker-initially) |
 | 2026-04-12 | ADR-020 | Layered testing approach                          | Accepted   | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
 | 2026-04-12 | ADR-021 | Global quota protection                           | Accepted   | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
+| 2026-04-12 | ADR-022 | Composition root (manual DI)                      | Accepted   | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
