@@ -69,6 +69,7 @@ Each ADR follows this structure:
 | ADR-020 | Testing        | Testing strategy                 | Layered testing approach           | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
 | ADR-021 | Resilience     | Rate limiting strategy           | Global quota protection            | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
 | ADR-022 | Architecture   | Dependency injection strategy    | Composition root (manual DI)       | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
+| ADR-023 | Architecture   | Module organization & naming     | Layer-first structure              | [🔗](#adr-023-module-organization--naming-convention) |
 
 ---
 
@@ -1098,6 +1099,140 @@ Infrastructure → Decorators → Application Services → Presentation wiring
 
 ---
 
+## ADR-023: Module Organization & Naming Convention
+
+### Status
+
+Accepted
+
+### Context
+
+The project follows Clean Architecture with strict separation between:
+
+- Domain
+- Application
+- Infrastructure
+- Presentation
+
+Without enforced structure:
+
+- Boundaries are easily violated
+- Imports become inconsistent
+- Codebase becomes harder to navigate and reason about
+
+### Decision
+
+Adopt a **layer-first module organization** using Python **regular packages**, strictly mirroring architectural boundaries.
+
+### Directory Structure
+
+```
+weather-analytics-dashboard/
+├── src/
+│   └── weather_analytics_dashboard/
+│       ├── __init__.py
+│       ├── main.py                 # FastAPI app creation & Composition Root
+│       │
+│       ├── presentation/           # Layer: Interface Adapters
+│       │   ├── __init__.py
+│       │   ├── api/
+│       │   │   ├── __init__.py
+│       │   │   ├── routes/         # Grouped by feature (weather.py, health.py)
+│       │   │   └── dependencies.py # FastAPI Depends retrieval logic
+│       │   └── cli/
+│       │       ├── __init__.py
+│       │       └── commands/       # Grouped by feature
+│       │
+│       ├── application/            # Layer: Use Cases
+│       │   ├── __init__.py
+│       │   └── services/           # Orchestration logic
+│       │
+│       ├── domain/                 # Layer: Enterprise Business Rules
+│       │   ├── __init__.py
+│       │   ├── models.py           # Pydantic entities & value objects
+│       │   ├── ports.py            # Abstract interfaces (WeatherProviderPort, etc.)
+│       │   └── exceptions.py       # Domain-specific errors
+│       │
+│       ├── infrastructure/         # Layer: Frameworks & Drivers
+│       │   ├── __init__.py
+│       │   ├── weather_providers/  # Adapters (openweather_adapter.py)
+│       │   ├── geocoding/          # Shared service
+│       │   ├── cache/              # Cached provider decorator & TTL store
+│       │   ├── persistence/        # SQLAlchemy models & Repository impl
+│       │   └── http/               # HTTPX client manager & retry logic
+│       │
+│       └── config/                 # Cross-cutting concern
+│           ├── __init__.py
+│           └── settings.py         # Pydantic Settings
+│
+├── tests/                          # Mirrors src/ structure
+│   ├── unit/
+│   ├── integration/
+│   └── conftest.py
+│
+├── docs/                           # ADRs, Scope, Architecture
+├── pyproject.toml
+└── .env.example
+```
+
+### Naming Conventions
+
+| Scope          | Convention                 | Example                    |
+| -------------- | -------------------------- | -------------------------- |
+| Files/Modules  | `snake_case`               | `weather_service.py`       |
+| Classes        | `PascalCase`               | `OpenWeatherAdapter`       |
+| Domain Ports   | `*Port`                    | `WeatherProviderPort`      |
+| Infrastructure | `*Adapter` / `*Repository` | `SqliteHistoryRepository`  |
+| Application    | `*Service`                 | `GetCurrentWeatherService` |
+
+### Architectural Constraints
+
+Strict dependency rules:
+
+| From → To      | Allowed                |
+| -------------- | ---------------------- |
+| Domain         | ❌ none                |
+| Application    | ✅ Domain              |
+| Infrastructure | ✅ Domain              |
+| Presentation   | ✅ Application, Domain |
+
+**Explicitly forbidden:**
+
+- Domain → anything
+- Application → Infrastructure
+- Infrastructure → Application
+- Presentation → Infrastructure
+
+### Test Structure Alignment
+
+The `tests/` directory mirrors `src/`:
+
+- `tests/unit/` → Domain & Application
+- `tests/integration/` → Infrastructure & Presentation
+
+This reinforces the testing strategy defined in ADR-020.
+
+### Consequences
+
+**Positive:**
+
+- Strong architectural clarity
+- Easier onboarding and navigation
+- Prevents accidental coupling between layers
+- Aligns directly with testing strategy
+
+**Negative:**
+
+- Longer import paths
+- Requires discipline to maintain boundaries
+
+### When to Revisit
+
+- If modules exceed ~15–20 files → consider feature-based grouping
+- If extracting services into separate deployables (microservices)
+
+---
+
 # QUICK REFERENCE
 
 ## Technology Stack
@@ -1137,6 +1272,7 @@ Infrastructure → Decorators → Application Services → Presentation wiring
 | Persistent API Failure | >3 failures/minute   | [ADR-009](#adr-009-retry-tenacity-with-exponential-backoff) (circuit breaker pattern) |
 | Test Suite Duration    | >25 seconds          | [ADR-020](#adr-020-testing-strategy-layered-testing-pyramid) (optimize tests) |
 | Dependency Graph Size  | >25 services         | [ADR-022](#adr-022-dependency-injection-strategy-composition-root-manual-di) (consider DI container) |
+| Module Size            | >20 files/module     | [ADR-023](#adr-023-module-organization--naming-convention) (restructure by feature) |
 
 ---
 
@@ -1166,3 +1302,4 @@ Infrastructure → Decorators → Application Services → Presentation wiring
 | 2026-04-12 | ADR-020 | Layered testing approach                          | Accepted   | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
 | 2026-04-12 | ADR-021 | Global quota protection                           | Accepted   | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
 | 2026-04-12 | ADR-022 | Composition root (manual DI)                      | Accepted   | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
+| 2026-04-12 | ADR-023 | Layer-first module organization                  | Accepted   | [🔗](#adr-023-module-organization--naming-convention) |
