@@ -41,9 +41,41 @@ Each ADR follows this structure:
 
 ---
 
+# SUMMARY
+
+## Summary Table
+
+| ADR     | Category       | Title                            | Decision                           |   |
+| ------- | -------------- | -------------------------------- | ---------------------------------- | - |
+| ADR-001 | Architecture   | Ports location                   | In domain layer                    | [🔗](#adr-001-ports-interfaces-location-domain-vs-application-layer) |
+| ADR-002 | Architecture   | Async strategy                   | Async throughout                   | [🔗](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) |
+| ADR-003 | Validation     | Data validation tool             | Pydantic v2                        | [🔗](#adr-003-data-validation-pydantic-v2) |
+| ADR-004 | Error Handling | Error handling strategy          | Layered with explicit mapping      | [🔗](#adr-004-error-handling-strategy-layered-with-mapping) |
+| ADR-005 | External       | Weather provider port            | Single port interface              | [🔗](#adr-005-weather-provider-port-single-port-interface) |
+| ADR-006 | External       | Geocoding responsibility         | Shared infrastructure service      | [🔗](#adr-006-geocoding-shared-infrastructure-service) |
+| ADR-007 | External       | Weather provider implementation  | Adapter pattern                    | [🔗](#adr-007-weather-provider-adapter-pattern) |
+| ADR-008 | External       | HTTP client                      | HTTPX (async)                      | [🔗](#adr-008-http-client-httpx-async-vs-requests) |
+| ADR-009 | Resilience     | Retry strategy                   | Tenacity with exponential backoff  | [🔗](#adr-009-retry-tenacity-with-exponential-backoff) |
+| ADR-010 | Data           | Database                         | SQLite + aiosqlite                 | [🔗](#adr-010-local-persistence-sqlite-vs-postgresql) |
+| ADR-011 | Data           | Database access pattern          | Repository pattern                 | [🔗](#adr-011-database-access-repository-pattern) |
+| ADR-012 | Data           | Domain vs ORM models             | Separate (Pydantic ≠ SQLAlchemy)   | [🔗](#adr-012-domain-vs-orm-separate-models) |
+| ADR-013 | Cache          | Cache type                       | In-memory cache                    | [🔗](#adr-013-cache-type-in-memory-cache-vs-external-cache) |
+| ADR-014 | Cache          | Cache application method         | Decorator pattern                  | [🔗](#adr-014-cache-application-decorator-pattern) |
+| ADR-015 | Cache          | Cache eviction                   | FIFO + TTL                         | [🔗](#adr-015-cache-eviction-strategy-fifo--ttl) |
+| ADR-016 | Config         | Configuration management         | Pydantic settings                  | [🔗](#adr-016-configuration-management-pydantic-settings) |
+| ADR-017 | Observability  | Logging                          | Standard library logging           | [🔗](#adr-017-logging-standard-library-logging-vs-structlog) |
+| ADR-018 | Presentation   | CLI framework                    | Click                              | [🔗](#adr-018-cli-framework-click-vs-typer) |
+| ADR-019 | Deployment     | Containerization                 | No Docker initially                | [🔗](#adr-019-containerization-no-docker-initially) |
+| ADR-020 | Testing        | Testing strategy                 | Layered testing approach           | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
+| ADR-021 | Resilience     | Rate limiting strategy           | Global quota protection            | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
+| ADR-022 | Architecture   | Dependency injection strategy    | Composition root (manual DI)       | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
+| ADR-023 | Architecture   | Module organization & naming     | Layer-first structure              | [🔗](#adr-023-module-organization--naming-convention) |
+
+---
+
 # FOUNDATIONAL ARCHITECTURE DECISIONS
 
-## ADR-001: Ports (Interfaces) in Domain Layer
+## ADR-001: Ports (Interfaces) Location: Domain vs Application Layer
 
 ### Status
 
@@ -84,7 +116,7 @@ If a port becomes purely technical and loses business meaning.
 
 ---
 
-## ADR-002: Async Throughout vs Mixed Sync/Async
+## ADR-002: Async Strategy: Async throughout vs Mixed Sync/Async
 
 ### Status
 
@@ -129,7 +161,7 @@ If CPU-bound workloads dominate execution time.
 
 ---
 
-## ADR-003: Pydantic v2 for All Data Validation
+## ADR-003: Data validation: Pydantic v2
 
 ### Status
 
@@ -162,7 +194,7 @@ If validation becomes a performance bottleneck or requirements change significan
 
 ---
 
-## ADR-004: Layered Error Handling Strategy
+## ADR-004: Error Handling Strategy: Layered with mapping
 
 ### Status
 
@@ -237,7 +269,7 @@ If error taxonomy becomes unwieldy (>20 error codes) or if interfaces need funda
 
 # EXTERNAL INTEGRATION DECISIONS
 
-## ADR-005: Single Weather Provider Port
+## ADR-005: Weather Provider Port: Single Port Interface
 
 ### Status
 
@@ -287,7 +319,7 @@ If new providers require fundamentally different interaction models.
 
 ---
 
-## ADR-006: Geocoding as a Shared Infrastructure Service
+## ADR-006: Geocoding: Shared Infrastructure Service
 
 ### Status
 
@@ -331,7 +363,7 @@ If geocoding requirements diverge significantly between providers (e.g., one req
 
 ---
 
-## ADR-007: Adapter Pattern for Weather Providers
+## ADR-007: Weather Provider: Adapter Pattern
 
 ### Status
 
@@ -363,7 +395,7 @@ If multiple providers require shared abstraction or base classes.
 
 ---
 
-## ADR-008: HTTPX over Requests for Async Support
+## ADR-008: HTTP Client: HTTPX (async) vs Requests
 
 ### Status
 
@@ -395,7 +427,7 @@ If alternative protocols (e.g., gRPC) are introduced.
 
 ---
 
-## ADR-009: Retry with Exponential Backoff via Tenacity
+## ADR-009: Retry: Tenacity with Exponential Backoff
 
 ### Status
 
@@ -422,7 +454,7 @@ Configuration (via settings):
 
 Retry applies only to recoverable errors: connection errors, timeouts, and 5xx responses. 4xx errors (e.g., invalid API key, city not found) are not retried.
 
-After retries are exhausted, a domain exception is raised and handled by the layered error strategy (ADR-004).
+After retries are exhausted, a domain exception is raised and handled by the layered error strategy (see [ADR-004](#adr-004-error-handling-strategy-layered-with-mapping)).
 
 ### Consequences
 
@@ -445,7 +477,7 @@ If circuit breaker patterns become necessary (e.g., to avoid hammering a failing
 
 # DATA LAYER DECISIONS
 
-## ADR-010: SQLite instead of PostgreSQL
+## ADR-010: Local Persistence: SQLite vs PostgreSQL
 
 ### Status
 
@@ -479,7 +511,7 @@ Use SQLite with async support (`aiosqlite`).
 
 ---
 
-## ADR-011: Repository Pattern for Database Access
+## ADR-011: Database Access: Repository Pattern
 
 ### Status
 
@@ -491,7 +523,7 @@ Need abstraction between business logic and persistence.
 
 ### Decision
 
-Use Repository pattern for database interactions. **The repository interface returns Domain Entities, not SQLAlchemy ORM objects.** This reinforces ADR-012 (Separation of Models) and prevents database implementation details from leaking into the application or domain layers.
+Use Repository pattern for database interactions. **The repository interface returns Domain Entities, not SQLAlchemy ORM objects.** This reinforces separation of models (see [ADR-012](#adr-012-domain-vs-orm-separate-models)) and prevents database implementation details from leaking into the application or domain layers.
 
 ### Consequences
 
@@ -511,7 +543,7 @@ If persistence becomes trivial or tightly coupled to domain.
 
 ---
 
-## ADR-012: Separation of Domain and ORM Models
+## ADR-012: Domain vs ORM: Separate Models
 
 ### Status
 
@@ -544,7 +576,7 @@ If model duplication becomes excessive.
 
 # CACHING STRATEGY DECISIONS
 
-## ADR-013: In-Memory Cache vs External Cache
+## ADR-013: Cache Type: In-Memory Cache vs External Cache
 
 ### Status
 
@@ -552,8 +584,7 @@ Accepted
 
 ### Context
 
-Caching is required to reduce API calls and improve performance. The data fetching
-pipeline creates two distinct caching opportunities at different architectural layers:
+Caching is required to reduce API calls and improve performance. The data fetching pipeline creates two distinct caching opportunities at different architectural layers:
 
 1. **Weather Provider Cache (Domain Layer boundary):** Caches complete weather responses using the domain `location` string as key. This is a system-wide concern, applied via decorator.
 
@@ -573,8 +604,7 @@ These are **not peer layers** in the architecture:
 - The Weather cache is a **decorator** wrapping any `WeatherProviderPort` implementation
 - The Geocoding cache is an **internal detail** of the shared `GeocodingService`
 
-This explains why the system is described as having "two-layer caching" in user-facing
-documentation, while ADRs treat geocoding as an infrastructure concern.
+This explains why the system is described as having "two-layer caching" in user-facing documentation, while ADRs treat geocoding as an infrastructure concern.
 
 ### Consequences
 
@@ -595,7 +625,7 @@ If scaling beyond a single instance or requiring cache persistence.
 
 ---
 
-## ADR-014: Cache via Decorator Pattern
+## ADR-014: Cache Application: Decorator Pattern
 
 ### Status
 
@@ -629,7 +659,7 @@ If caching requirements become tightly coupled to provider logic.
 
 ---
 
-## ADR-015: Cache Eviction Strategy (FIFO + TTL)
+## ADR-015: Cache Eviction Strategy: FIFO + TTL
 
 ### Status
 
@@ -663,7 +693,7 @@ If cache miss rate becomes unacceptable.
 
 # CONFIGURATION & OBSERVABILITY DECISIONS
 
-## ADR-016: Pydantic Settings for Configuration Management
+## ADR-016: Configuration Management: Pydantic Settings
 
 ### Status
 
@@ -695,7 +725,7 @@ If configuration becomes distributed or requires remote sources.
 
 ---
 
-## ADR-017: Standard Library Logging over Structlog
+## ADR-017: Logging: Standard Library Logging vs Structlog
 
 ### Status
 
@@ -735,7 +765,7 @@ If advanced observability or log aggregation is required.
 
 # PRESENTATION LAYER DECISIONS
 
-## ADR-018: Click over Typer for CLI Framework
+## ADR-018: CLI Framework: Click vs Typer
 
 ### Status
 
@@ -769,7 +799,7 @@ If CLI complexity grows significantly.
 
 # DEPLOYMENT DECISIONS
 
-## ADR-019: No Docker Initially
+## ADR-019: Containerization: No Docker Initially
 
 ### Status
 
@@ -802,63 +832,474 @@ If deploying to production or multiple environments.
 
 ---
 
-## Decision Summary
+# LATER DECISIONS
 
-| ADR     | Category       | Decision                                          |
-| ------- | -------------- | ------------------------------------------------- |
-| ADR-001 | Architecture   | Ports in domain layer                             |
-| ADR-002 | Architecture   | Async everywhere                                  |
-| ADR-003 | Validation     | Pydantic v2                                       |
-| ADR-004 | Error Handling | Layered error strategy, no internal codes exposed |
-| ADR-005 | External       | Single provider port                              |
-| ADR-006 | External       | Geocoding as shared infrastructure service        |
-| ADR-007 | External       | Adapter pattern                                   |
-| ADR-008 | External       | HTTPX                                             |
-| ADR-009 | Resilience     | Retry with exponential backoff (tenacity)         |
-| ADR-010 | Data           | SQLite                                            |
-| ADR-011 | Data           | Repository pattern                                |
-| ADR-012 | Data           | Separate domain and ORM models                    |
-| ADR-013 | Cache          | In-memory cache                                   |
-| ADR-014 | Cache          | Decorator pattern                                 |
-| ADR-015 | Cache          | FIFO eviction + TTL                               |
-| ADR-016 | Config         | Pydantic settings                                 |
-| ADR-017 | Observability  | Standard logging                                  |
-| ADR-018 | Presentation   | Click CLI                                         |
-| ADR-019 | Deployment     | No Docker (v1.0)                                  |
+## ADR-020: Testing Strategy: Layered Testing Approach
+
+### Status
+
+Accepted
+
+### Context
+
+The system spans multiple architectural layers (Presentation, Application, Domain, Infrastructure) and integrates with external systems (OpenWeatherMap API, SQLite database).
+
+A testing strategy must:
+
+- Ensure correctness across layers
+- Preserve domain independence from infrastructure
+- Provide fast feedback during development
+- Avoid reliance on external systems (network, API limits)
+
+Naive approaches (full end-to-end testing or excessive mocking) introduce trade-offs:
+
+- **E2E-heavy:** Slow, fragile, dependent on external APIs
+- **Mock-heavy:** Unrealistic, brittle, low confidence
+
+### Decision
+
+Adopt a **layered testing strategy** strictly aligned with the system architecture (Clean Architecture / Ports & Adapters), combining unit, integration, and end-to-end tests:
+
+#### 1. Domain Layer
+
+- **Type:** Pure Unit Tests
+- **Dependencies:** None (no mocks, no I/O)
+- **Validation:** Business rules, value objects, and domain invariants
+
+#### 2. Application Layer
+
+- **Type:** Solitary Unit Tests
+- **Dependencies:** **Fakes** for stateful ports (e.g., `FakeHistoryRepository`), **Mocks** for stateless ports (e.g., `WeatherProviderPort`)
+- **Validation:** Orchestration logic, use case workflows, and error mapping from domain exceptions to application errors
+
+#### 3. Infrastructure Layer
+
+- **Type:** Sociable Integration Tests (Component Tests)
+- **Constraint:** These tests validate adapters against the **contract of the HTTPX client**, not the OpenWeatherMap API itself
+
+**HTTP Integration (`pytest-httpx`):**
+
+- Intercept all outbound HTTP calls
+- Validate:
+    - Request URL and query parameter construction
+    - JSON response parsing
+    - **Retry behavior (Tenacity):** Simulate `HTTP_500` or `TimeoutException` to verify exponential backoff is triggered
+    - Translation of HTTP errors to Domain Exceptions
+
+**Persistence Integration (`aiosqlite`):**
+
+- Use SQLite **in-memory** database (`sqlite+aiosqlite:///:memory:`)
+- Test the real `Repository` implementation against a real SQL engine without file I/O
+
+#### 4. Presentation Layer
+
+- **API:** `FastAPI TestClient` with dependency overrides (injecting Application Layer Fakes/Mocks)
+- **CLI:** Subprocess execution or `CliRunner` with dependency overrides
+- **Validation:** Input parsing, HTTP status codes, JSON response structure, and CLI exit codes
+
+#### 5. Smoke Tests (CI Gate)
+
+- Validate application bootstrapping (Dependency Injection wiring)
+- Ensure `uv run weather --help` and `GET /` return successfully without crashing
+
+### Testing Principles
+
+- **Boundary Mocking:** Mocks/Fakes are applied **only at architectural boundaries (domain ports)**
+- **No Internal Mocking:** Core domain and application logic is **never mocked**
+- **Zero External Calls:** The test suite makes zero network calls to `api.openweathermap.org`
+- **Determinism:** Tests are fast and repeatable regardless of network conditions
+
+### Consequences
+
+**Positive:**
+
+- **Fast Feedback:** The entire suite runs in seconds, enabling rapid TDD
+- **High Confidence:** Validates both business logic (Unit) and integration wiring (Component)
+- **Verifiable Resilience:** Allows testing of retry logic (Tenacity) and cache TTLs without waiting
+- **Clean Architecture Validation:** The test suite proves the Domain layer has no dependency on external frameworks
+
+**Negative:**
+
+- **Discipline Required:** Developers must consciously decide which test layer is appropriate for new code
+- **Fixture Maintenance:** Requires maintaining realistic JSON fixtures (`pytest-httpx`) for OpenWeatherMap responses
+- **Complexity:** Multiple test types increase initial cognitive load
+
+### Testing Performance Expectations (Non-Normative Guidance)
+
+The following metrics serve as design targets, not strict failure criteria:
+
+| Layer                    | Scope                              | Expected Execution Time (Target) |
+| ------------------------ | ---------------------------------- | -------------------------------- |
+| **Domain / Application** | Solitary Unit Tests                | **< 10 seconds**                 |
+| **Infrastructure**       | Sociable Component Tests (DB/HTTP) | **< 15 seconds**                 |
+| **Full Suite**           | All tests (Unit + Integration)     | **< 25 seconds**                 |
+
+*Note: These targets assume local execution on standard development hardware. CI runners may exhibit slight variance due to resource constraints.*
+
+### When to Revisit
+
+This ADR should be re-evaluated if the test suite exhibits signs of architectural decay rather than simply growing in size. Triggers for revisiting include:
+
+- **Degraded Developer Experience:** Core unit and application layer tests **exceed 10 seconds**. This indicates accidental I/O or heavy mocking overhead that breaks the fast feedback loop required for TDD
+- **Systemic Slowness:** The full integration suite **exceeds 25 seconds**. This threshold signals that infrastructure setup/teardown has become a bottleneck (e.g., database migrations running per-test instead of per-session)
+- **Flakiness:** Introduction of "flaky" tests (tests that fail randomly without code changes), often caused by shared async state or improper `freezegun` usage with retry logic
+- **False Confidence:** Bugs repeatedly slipping through to production/staging that indicate the `pytest-httpx` fixtures have drifted from the real OpenWeatherMap API contract
 
 ---
 
-## Quick Reference: Technology Stack
+## ADR-021: Rate Limiting Strategy: Global Quota Protection
 
-| Layer               | Technology              | Decision Reference    |
-| ------------------- | ----------------------- | --------------------- |
-| **Language**        | Python 3.12+            | Non-decision          |
-| **Package Manager** | `uv`                    | Non-decision          |
-| **Linting**         | `ruff`                  | Non-decision          |
-| **Type Checking**   | mypy (strict mode)      | Non-decision          |
-| **Web Framework**   | FastAPI                 | ADR-002               |
-| **Validation**      | Pydantic v2             | ADR-003               |
-| **Error Handling**  | Layered exceptions      | ADR-004               |
-| **Configuration**   | Pydantic Settings       | ADR-016               |
-| **HTTP Client**     | HTTPX                   | ADR-008               |
-| **Retry Logic**     | tenacity                | ADR-009               |
-| **Database**        | SQLite + aiosqlite      | ADR-010               |
-| **ORM**             | SQLAlchemy 2.0+ (async) | ADR-002               |
-| **Cache Strategy**  | In-memory dict + TTL    | ADR-013, ADR-015      |
-| **Logging**         | Python `logging` module | ADR-017               |
-| **CLI Framework**   | Click                   | ADR-018               |
-| **Container**       | None (v1.0)             | ADR-019               |
+### Status
+
+Accepted
+
+### Context
+
+The system depends on the **OpenWeatherMap Free Tier**, which imposes a hard limit of:
+
+- 60 API calls per minute
+
+Exceeding this limit results in failed requests (HTTP 429) and potential API key suspension.
+
+Given the project constraints:
+
+- Expected load: **<100 requests/day**
+- No multi-instance deployment
+- No user-level authentication
+
+A rate limiting strategy is required to **protect the external dependency**, not to enforce fairness between users.
+
+### Decision
+
+Implement a **Global Quota Protection (Fail Fast)** strategy at the **Infrastructure Layer**.
+
+- **Location:** `HttpClientManager`
+- **Mechanism:** In-memory fixed window counter
+- **Limit:** **55 requests/minute** (safety margin)
+- **Behavior:**
+  - If limit is exceeded → **do not perform HTTP call**
+  - Raise domain exception: `ProviderQuotaExceededError`
+  - No queuing, no sleeping
+
+### Rationale
+
+- **Protects external dependency** from accidental overuse
+- **Encapsulates provider constraints** within Infrastructure (aligned with ADR-001)
+- **Avoids unnecessary complexity** (no Redis, no token bucket)
+- **Integrates cleanly with error strategy** (see ADR-004)
+
+### Consequences
+
+**Positive:**
+
+- Prevents API key throttling or bans
+- Extremely simple implementation (~10–15 LOC)
+- Zero operational overhead
+- Fully transparent to Domain and Application layers
+
+**Negative:**
+
+- **Burst sensitivity:** Short spikes can exhaust quota early in the window
+- **Fail-fast UX:** Users receive immediate errors instead of delayed responses
+- **Single-instance only:** Not safe for multi-worker deployments
+
+### When to Revisit
+
+- Running multiple instances or workers
+- Sustained traffic approaching provider limits
+- Need for user-level fairness or prioritization
+
+---
+
+## ADR-022: Dependency Injection Strategy: Composition Root (Manual DI)
+
+### Status
+
+Accepted
+
+### Context
+
+The system requires dependency injection to:
+
+- Enforce **dependency inversion** (ADR-001)
+- Enable **testability** via mocks/fakes (ADR-020)
+- Allow **infrastructure substitution** (providers, repositories)
+
+Available approaches:
+
+1. Framework-driven DI (FastAPI `Depends`)
+2. External DI containers (`dependency-injector`, `punq`)
+3. Manual DI (pure Python)
+
+### Decision
+
+Use **Manual Dependency Injection via a Composition Root**.
+
+No external DI framework will be introduced.
+
+### Implementation Approach
+
+#### 1. Composition Root
+
+- Located in:
+  - `main.py` (FastAPI entrypoint)
+  - CLI bootstrap module
+- Responsible for building the **entire object graph**
+
+**Construction order:**
+
+```
+Infrastructure → Decorators → Application Services → Presentation wiring
+```
+
+#### 2. Injection Pattern
+
+- **Constructor Injection only**
+- No service locators
+- No global singletons
+
+#### 3. FastAPI Integration
+
+- FastAPI `Depends` is used **only as a retrieval mechanism**
+- Dependencies are retrieved from a pre-built container (`AppState`)
+
+**Constraint:**
+
+- `Depends` must NOT:
+  - Instantiate objects
+  - Contain business logic
+  - Perform I/O
+
+### Rationale
+
+- Aligns with Clean Architecture (explicit boundaries)
+- Keeps dependency graph **fully explicit and inspectable**
+- Avoids framework lock-in
+- Keeps complexity proportional to project size (YAGNI)
+
+### Consequences
+
+**Positive:**
+
+- Full control over object lifecycle
+- No hidden magic or runtime indirection
+- Excellent testability (direct constructor injection)
+- Debuggable and predictable
+
+**Negative:**
+
+- Manual wiring required when adding dependencies
+- Composition root can grow over time
+
+### When to Revisit
+
+- Dependency graph grows beyond ~20–30 services
+- Need for runtime/dynamic wiring based on configuration
+- Introduction of scoped lifetimes (e.g., request-scoped DB sessions)
+
+---
+
+## ADR-023: Module Organization & Naming Convention
+
+### Status
+
+Accepted
+
+### Context
+
+The project follows Clean Architecture with strict separation between:
+
+- Domain
+- Application
+- Infrastructure
+- Presentation
+
+Without enforced structure:
+
+- Boundaries are easily violated
+- Imports become inconsistent
+- Codebase becomes harder to navigate and reason about
+
+### Decision
+
+Adopt a **layer-first module organization** using Python **regular packages**, strictly mirroring architectural boundaries.
+
+### Directory Structure
+
+```
+weather-analytics-dashboard/
+├── src/
+│   └── weather_analytics_dashboard/
+│       ├── __init__.py
+│       ├── main.py                 # FastAPI app creation & Composition Root
+│       │
+│       ├── presentation/           # Layer: Interface Adapters
+│       │   ├── __init__.py
+│       │   ├── api/
+│       │   │   ├── __init__.py
+│       │   │   ├── routes/         # Grouped by feature (weather.py, health.py)
+│       │   │   └── dependencies.py # FastAPI Depends retrieval logic
+│       │   └── cli/
+│       │       ├── __init__.py
+│       │       └── commands/       # Grouped by feature
+│       │
+│       ├── application/            # Layer: Use Cases
+│       │   ├── __init__.py
+│       │   └── services/           # Orchestration logic
+│       │
+│       ├── domain/                 # Layer: Enterprise Business Rules
+│       │   ├── __init__.py
+│       │   ├── models.py           # Pydantic entities & value objects
+│       │   ├── ports.py            # Abstract interfaces (WeatherProviderPort, etc.)
+│       │   └── exceptions.py       # Domain-specific errors
+│       │
+│       ├── infrastructure/         # Layer: Frameworks & Drivers
+│       │   ├── __init__.py
+│       │   ├── weather_providers/  # Adapters (openweather_adapter.py)
+│       │   ├── geocoding/          # Shared service
+│       │   ├── cache/              # Cached provider decorator & TTL store
+│       │   ├── persistence/        # SQLAlchemy models & Repository impl
+│       │   └── http/               # HTTPX client manager & retry logic
+│       │
+│       └── config/                 # Cross-cutting concern
+│           ├── __init__.py
+│           └── settings.py         # Pydantic Settings
+│
+├── tests/                          # Mirrors src/ structure
+│   ├── unit/
+│   ├── integration/
+│   └── conftest.py
+│
+├── docs/                           # ADRs, Scope, Architecture
+├── pyproject.toml
+└── .env.example
+```
+
+### Naming Conventions
+
+| Scope          | Convention                 | Example                    |
+| -------------- | -------------------------- | -------------------------- |
+| Files/Modules  | `snake_case`               | `weather_service.py`       |
+| Classes        | `PascalCase`               | `OpenWeatherAdapter`       |
+| Domain Ports   | `*Port`                    | `WeatherProviderPort`      |
+| Infrastructure | `*Adapter` / `*Repository` | `SqliteHistoryRepository`  |
+| Application    | `*Service`                 | `GetCurrentWeatherService` |
+
+### Architectural Constraints
+
+Strict dependency rules:
+
+| From → To      | Allowed                |
+| -------------- | ---------------------- |
+| Domain         | ❌ none                |
+| Application    | ✅ Domain              |
+| Infrastructure | ✅ Domain              |
+| Presentation   | ✅ Application, Domain |
+
+**Explicitly forbidden:**
+
+- Domain → anything
+- Application → Infrastructure
+- Infrastructure → Application
+- Presentation → Infrastructure
+
+### Test Structure Alignment
+
+The `tests/` directory mirrors `src/`:
+
+- `tests/unit/` → Domain & Application
+- `tests/integration/` → Infrastructure & Presentation
+
+This reinforces the testing strategy defined in ADR-020.
+
+### Consequences
+
+**Positive:**
+
+- Strong architectural clarity
+- Easier onboarding and navigation
+- Prevents accidental coupling between layers
+- Aligns directly with testing strategy
+
+**Negative:**
+
+- Longer import paths
+- Requires discipline to maintain boundaries
+
+### When to Revisit
+
+- If modules exceed ~15–20 files → consider feature-based grouping
+- If extracting services into separate deployables (microservices)
+
+---
+
+# QUICK REFERENCE
+
+## Technology Stack
+
+| Layer               | Technology              | Decision Reference |
+| ------------------- | ----------------------- | ------------------ |
+| **Language**        | Python 3.12+            | Non-decision       |
+| **Package Manager** | `uv`                    | Non-decision       |
+| **Linting**         | `ruff`                  | Non-decision       |
+| **Type Checking**   | mypy (strict mode)      | Non-decision       |
+| **Web Framework**   | FastAPI                 | [ADR-002](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) |
+| **Validation**      | Pydantic v2             | [ADR-003](#adr-003-data-validation-pydantic-v2) |
+| **Error Handling**  | Layered exceptions      | [ADR-004](#adr-004-error-handling-strategy-layered-with-mapping) |
+| **Configuration**   | Pydantic Settings       | [ADR-016](#adr-016-configuration-management-pydantic-settings) |
+| **HTTP Client**     | HTTPX                   | [ADR-008](#adr-008-http-client-httpx-async-vs-requests) |
+| **Retry Logic**     | tenacity                | [ADR-009](#adr-009-retry-tenacity-with-exponential-backoff) |
+| **Database**        | SQLite + aiosqlite      | [ADR-010](#adr-010-local-persistence-sqlite-vs-postgresql) |
+| **ORM**             | SQLAlchemy 2.0+ (async) | [ADR-002](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) |
+| **Cache Strategy**  | In-memory dict + TTL    | [ADR-013](#adr-013-cache-type-in-memory-cache-vs-external-cache), [ADR-015](#adr-015-cache-eviction-strategy-fifo--ttl) |
+| **Logging**         | Python `logging` module | [ADR-017](#adr-017-logging-standard-library-logging-vs-structlog) |
+| **CLI Framework**   | Click                   | [ADR-018](#adr-018-cli-framework-click-vs-typer) |
+| **Testing**         | pytest ecosystem        | [ADR-020](#adr-020-testing-strategy-layered-testing-approach) |
+| **Container**       | None (v1.0)             | [ADR-019](#adr-019-containerization-no-docker-initially) |
 
 ---
 
 ## Metrics That Trigger Revisits
 
-| Metric                 | Threshold            | ADRs Affected                      |
-| ---------------------- | -------------------- | ---------------------------------- |
-| Daily Active Users     | >1000                | ADR-010 (PostgreSQL)               |
-| Cache Miss Rate        | >10% due to eviction | ADR-015 (eviction strategy)        |
-| Write Contention       | >50 writes/second    | ADR-010 (PostgreSQL)               |
-| Memory Usage           | >100MB for cache     | ADR-013 (Redis)                    |
-| Concurrent Instances   | >1                   | ADR-013 (Redis), ADR-019           |
-| CPU-bound Work         | >50% CPU time        | ADR-002 (reconsider async)         |
-| Persistent API Failure | Circuit trips needed | ADR-009 (circuit breaker pattern)  |
+| Metric                 | Threshold            | ADRs Affected |
+| ---------------------- | -------------------- | ------------- |
+| Daily Active Users     | >1000                | [ADR-010](#adr-010-local-persistence-sqlite-vs-postgresql) (PostgreSQL) |
+| Cache Miss Rate        | >10% due to eviction | [ADR-015](#adr-015-cache-eviction-strategy-fifo--ttl) (eviction strategy) |
+| Write Contention       | >50 writes/second    | [ADR-010](#adr-010-local-persistence-sqlite-vs-postgresql) (PostgreSQL) |
+| Memory Usage           | >100MB for cache     | [ADR-013](#adr-013-cache-type-in-memory-cache-vs-external-cache) (Redis) |
+| Concurrent Instances   | >1                   | [ADR-013](#adr-013-cache-type-in-memory-cache-vs-external-cache) (Redis), [ADR-019](#adr-019-containerization-no-docker-initially) (Docker) |
+| CPU-bound Work         | >50% CPU time        | [ADR-002](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) (reconsider async) |
+| Persistent API Failure | >3 failures/minute   | [ADR-009](#adr-009-retry-tenacity-with-exponential-backoff) (circuit breaker pattern) |
+| Test Suite Duration    | >25 seconds          | [ADR-020](#adr-020-testing-strategy-layered-testing-pyramid) (optimize tests) |
+| Dependency Graph Size  | >25 services         | [ADR-022](#adr-022-dependency-injection-strategy-composition-root-manual-di) (consider DI container) |
+| Module Size            | >20 files/module     | [ADR-023](#adr-023-module-organization--naming-convention) (restructure by feature) |
+
+---
+
+# CHANGELOG
+
+| Date       | ADR     | Decision                                          | Change     |   |
+| ---------- | ------- | ------------------------------------------------- | ---------- | - |
+| 2026-04-09 | ADR-001 | Ports in domain layer                             | Accepted   | [🔗](#adr-001-ports-interfaces-location-domain-vs-application-layer) |
+| 2026-04-09 | ADR-002 | Async everywhere                                  | Accepted   | [🔗](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) |
+| 2026-04-09 | ADR-003 | Pydantic v2 for data validation                   | Accepted   | [🔗](#adr-003-data-validation-pydantic-v2) |
+| 2026-04-09 | ADR-004 | Layered error strategy, no internal codes exposed | Accepted   | [🔗](#adr-004-error-handling-strategy-layered-with-mapping) |
+| 2026-04-09 | ADR-005 | Single provider port                              | Accepted   | [🔗](#adr-005-weather-provider-port-single-port-interface) |
+| 2026-04-09 | ADR-006 | Geocoding as shared infrastructure service        | Accepted   | [🔗](#adr-006-geocoding-shared-infrastructure-service) |
+| 2026-04-09 | ADR-007 | Adapter pattern                                   | Accepted   | [🔗](#adr-007-weather-provider-adapter-pattern) |
+| 2026-04-09 | ADR-008 | HTTPX                                             | Accepted   | [🔗](#adr-008-http-client-httpx-async-vs-requests) |
+| 2026-04-09 | ADR-009 | Retry with exponential backoff (tenacity)         | Accepted   | [🔗](#adr-009-retry-tenacity-with-exponential-backoff) |
+| 2026-04-09 | ADR-010 | SQLite                                            | Accepted   | [🔗](#adr-010-local-persistence-sqlite-vs-postgresql) |
+| 2026-04-09 | ADR-011 | Repository pattern                                | Accepted   | [🔗](#adr-011-database-access-repository-pattern) |
+| 2026-04-09 | ADR-012 | Separate domain and ORM models                    | Accepted   | [🔗](#adr-012-domain-vs-orm-separate-models) |
+| 2026-04-09 | ADR-013 | In-memory cache                                   | Accepted   | [🔗](#adr-013-cache-type-in-memory-cache-vs-external-cache) |
+| 2026-04-09 | ADR-014 | Decorator pattern                                 | Accepted   | [🔗](#adr-014-cache-application-decorator-pattern) |
+| 2026-04-09 | ADR-015 | FIFO eviction + TTL                               | Accepted   | [🔗](#adr-015-cache-eviction-strategy-fifo--ttl) |
+| 2026-04-09 | ADR-016 | Pydantic settings                                 | Accepted   | [🔗](#adr-016-configuration-management-pydantic-settings) |
+| 2026-04-09 | ADR-017 | Standard logging                                  | Accepted   | [🔗](#adr-017-logging-standard-library-logging-vs-structlog) |
+| 2026-04-09 | ADR-018 | Click CLI                                         | Accepted   | [🔗](#adr-018-cli-framework-click-vs-typer) |
+| 2026-04-09 | ADR-019 | No Docker Initially                               | Accepted   | [🔗](#adr-019-containerization-no-docker-initially) |
+| 2026-04-12 | ADR-020 | Layered testing approach                          | Accepted   | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
+| 2026-04-12 | ADR-021 | Global quota protection                           | Accepted   | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
+| 2026-04-12 | ADR-022 | Composition root (manual DI)                      | Accepted   | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
+| 2026-04-12 | ADR-023 | Layer-first module organization                  | Accepted   | [🔗](#adr-023-module-organization--naming-convention) |
