@@ -67,6 +67,7 @@ Each ADR follows this structure:
 | ADR-018 | Presentation   | CLI framework                    | Click                              | [🔗](#adr-018-cli-framework-click-vs-typer) |
 | ADR-019 | Deployment     | Containerization                 | No Docker initially                | [🔗](#adr-019-containerization-no-docker-initially) |
 | ADR-020 | Testing        | Testing strategy                 | Layered testing approach           | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
+| ADR-021 | Resilience     | Rate limiting strategy           | Global quota protection            | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
 
 ---
 
@@ -944,6 +945,70 @@ This ADR should be re-evaluated if the test suite exhibits signs of architectura
 
 ---
 
+## ADR-021: Rate Limiting Strategy: Global Quota Protection
+
+### Status
+
+Accepted
+
+### Context
+
+The system depends on the **OpenWeatherMap Free Tier**, which imposes a hard limit of:
+
+- 60 API calls per minute
+
+Exceeding this limit results in failed requests (HTTP 429) and potential API key suspension.
+
+Given the project constraints:
+
+- Expected load: **<100 requests/day**
+- No multi-instance deployment
+- No user-level authentication
+
+A rate limiting strategy is required to **protect the external dependency**, not to enforce fairness between users.
+
+### Decision
+
+Implement a **Global Quota Protection (Fail Fast)** strategy at the **Infrastructure Layer**.
+
+- **Location:** `HttpClientManager`
+- **Mechanism:** In-memory fixed window counter
+- **Limit:** **55 requests/minute** (safety margin)
+- **Behavior:**
+  - If limit is exceeded → **do not perform HTTP call**
+  - Raise domain exception: `ProviderQuotaExceededError`
+  - No queuing, no sleeping
+
+### Rationale
+
+- **Protects external dependency** from accidental overuse
+- **Encapsulates provider constraints** within Infrastructure (aligned with ADR-001)
+- **Avoids unnecessary complexity** (no Redis, no token bucket)
+- **Integrates cleanly with error strategy** (see ADR-004)
+
+### Consequences
+
+**Positive:**
+
+- Prevents API key throttling or bans
+- Extremely simple implementation (~10–15 LOC)
+- Zero operational overhead
+- Fully transparent to Domain and Application layers
+
+**Negative:**
+
+- **Burst sensitivity:** Short spikes can exhaust quota early in the window
+- **Fail-fast UX:** Users receive immediate errors instead of delayed responses
+- **Single-instance only:** Not safe for multi-worker deployments
+
+### When to Revisit
+
+- Running multiple instances or workers
+- Sustained traffic approaching provider limits
+- Need for user-level fairness or prioritization
+
+---
+
 # QUICK REFERENCE
 
 ## Technology Stack
@@ -1009,3 +1074,4 @@ This ADR should be re-evaluated if the test suite exhibits signs of architectura
 | 2026-04-09 | ADR-018 | Click CLI                                         | Accepted   | [🔗](#adr-018-cli-framework-click-vs-typer) |
 | 2026-04-09 | ADR-019 | No Docker Initially                               | Accepted   | [🔗](#adr-019-containerization-no-docker-initially) |
 | 2026-04-12 | ADR-020 | Layered testing approach                          | Accepted   | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
+| 2026-04-12 | ADR-021 | Global quota protection                           | Accepted   | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
