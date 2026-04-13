@@ -9,17 +9,19 @@
 
 A production-style weather data service with intelligent caching, query history, and dual interfaces (REST API + CLI). Built to demonstrate **clean architecture, async Python, and real-world backend patterns**.
 
+> 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slices underway toward v1.0.0.
+
 ---
 
 ## 🎯 Why This Project Exists
 
 This is a **portfolio project** designed to demonstrate:
 
-* Clean Architecture (Ports & Adapters)
-* Async Python across the entire stack
-* Separation of concerns (API / domain / infrastructure)
-* External API integration with caching, retry logic, and fallback strategies
-* Professional engineering practices (ADRs, testing strategy, documentation)
+- Clean Architecture (Ports & Adapters)
+- Async Python across the entire stack
+- Separation of concerns (API / domain / infrastructure)
+- External API integration with caching, retry logic, and fallback strategies
+- Professional engineering practices (ADRs, testing strategy, documentation)
 
 ---
 
@@ -37,7 +39,7 @@ cp .env.example .env
 # Add your OpenWeatherMap API key (https://openweathermap.org/api)
 
 # Run API
-uv run uvicorn src.weather_analytics_dashboard.main:app --reload
+uv run uvicorn weather_analytics_dashboard.main:app --reload
 
 # Test endpoints
 curl http://localhost:8000/health
@@ -46,6 +48,109 @@ curl "http://localhost:8000/weather/current?city=London"
 # CLI usage
 uv run weather now London
 ```
+
+---
+
+## 🗺️ Development Roadmap
+
+This project follows a **vertical-slice, test-driven development approach**, where each milestone delivers a fully working feature across all layers.
+
+---
+
+### 📦 Version Milestones
+
+| Version | Focus                                    | Status |
+| ------- | ---------------------------------------- | ------ |
+| 0.1.0   | Foundation (`/health`)                   | [ ]    |
+| 0.2.0   | Current Weather API (`/weather/current`) | [ ]    |
+| 0.3.0   | Forecast System (`/weather/forecast`)    | [ ]    |
+| 0.4.0   | History Persistence (`/weather/history`) | [ ]    |
+| 0.5.0   | Caching Layer                            | [ ]    |
+| 0.6.0   | Retry & Resilience                       | [ ]    |
+| 1.0.0   | Production Release                       | [ ]    |
+
+---
+
+### 🧱 Development Phases
+
+#### 🚀 Foundation & Setup
+
+- [x] Project scaffolding
+- [x] Documentation structure (README, ADRs, scope)
+- [x] Smoke tests (API + CLI)
+- [ ] CI/CD pipeline setup and automation
+- [ ] Settings & configuration system
+- [ ] Base FastAPI application bootstrap
+
+---
+
+#### Health Endpoint (Vertical Slice #0)
+
+- [ ] `/health` endpoint implementation
+- [ ] Health check tests
+- [ ] Minimal API wiring validation
+
+---
+
+#### Current Weather (Vertical Slice #1)
+
+- [ ] Domain models for weather
+- [ ] Use case: get current weather
+- [ ] OpenWeatherMap adapter integration
+- [ ] `/weather/current` endpoint
+- [ ] CLI: `weather now <city>`
+- [ ] Full integration tests
+
+---
+
+#### Forecast (Vertical Slice #2)
+
+- [ ] Forecast domain logic
+- [ ] Forecast use case implementation
+- [ ] `/weather/forecast` endpoint
+- [ ] CLI: `weather forecast <city>`
+- [ ] External API extension for forecasts
+
+---
+
+#### History System (Vertical Slice #3)
+
+- [ ] SQLite schema + repository
+- [ ] Persist query history
+- [ ] `/weather/history` endpoint
+- [ ] CLI: `weather history <city>`
+- [ ] FIFO cleanup (max 10 entries)
+
+---
+
+#### Caching Layer
+
+- [ ] Weather cache (5 min TTL)
+- [ ] Geocoding cache (7 days TTL)
+- [ ] FIFO eviction strategy
+- [ ] Cache decorator implementation
+- [ ] Cache hit/miss tests
+
+---
+
+#### Resilience & Retry Logic
+
+- [ ] Retry mechanism with exponential backoff
+- [ ] Configurable retry settings
+- [ ] Handling 5xx and timeout errors
+- [ ] Cached fallback on failure
+- [ ] Failure simulation tests
+
+---
+
+### 🎯 Final Release (v1.0.0)
+
+- [ ] All endpoints complete
+- [ ] CLI feature parity with API
+- [ ] Full async execution (no blocking I/O)
+- [ ] Clean Architecture enforced across layers
+- [ ] High test coverage achieved
+- [ ] Production-ready documentation
 
 ---
 
@@ -99,25 +204,25 @@ From a user perspective, both contribute to performance optimization.
 
 ### 🔁 Resilience
 
-* Automatic retry with exponential backoff on transient external API failures
-* Graceful degradation when the provider is unavailable
+- Automatic retry with exponential backoff on transient external API failures
+- Graceful degradation when the provider is unavailable
 
 ---
 
 ### 📜 Query History
 
-* SQLite persistence
-* Last 10 queries per location
-* FIFO eviction
-* Survives restarts
+- SQLite persistence
+- Last 10 queries per location
+- FIFO eviction
+- Survives restarts
 
 ---
 
 ### 🔄 Async Throughout
 
-* FastAPI (ASGI)
-* HTTPX (non-blocking HTTP)
-* SQLAlchemy async + aiosqlite
+- FastAPI (ASGI)
+- HTTPX (non-blocking HTTP)
+- SQLAlchemy async + aiosqlite
 
 ✔ No blocking I/O
 ✔ Efficient concurrent handling
@@ -140,16 +245,16 @@ Infrastructure (DB, Cache, External APIs)
 
 ### Key Patterns
 
-* **Provider Pattern (Port + Adapter)** → external weather services abstraction
-* **Repository Pattern** → database abstraction
-* **Decorator Pattern** → caching layer
-* **Service Layer** → use case orchestration
-* **Dependency Injection** → testability
+- **Provider Pattern (Port + Adapter)** → external weather services abstraction
+- **Repository Pattern** → database abstraction
+- **Decorator Pattern** → caching layer
+- **Service Layer** → use case orchestration
+- **Dependency Injection** → testability
 
 📚 Documentation:
 
-* [`docs/architecture.md`](docs/architecture.md)
-* [`docs/decisions.md`](docs/decisions.md)
+- [`docs/architecture.md`](docs/architecture.md)
+- [`docs/decisions.md`](docs/decisions.md)
 
 ---
 
@@ -157,8 +262,8 @@ Infrastructure (DB, Cache, External APIs)
 
 Weather data retrieval is **provider-driven**:
 
-* The domain interacts with a single abstraction: `WeatherProvider`
-* Each provider implementation decides how to resolve a location
+- The domain interacts with a single abstraction: `WeatherProvider`
+- Each provider implementation decides how to resolve a location
 
 ### Example: OpenWeatherMap
 
@@ -175,41 +280,38 @@ This logic is **fully encapsulated inside the provider adapter**, keeping the do
 
 ## 📁 Project Structure
 
+The current structure is the foundational layer. The system will evolve incrementally following the design defined in [ADR-023](docs/decisions.md).
+
 ```bash
 src/weather_analytics_dashboard/
-├── presentation/
-│   ├── api/
-│   └── cli/
-│
 ├── application/
-│   └── services/
+│   └── __init__.py
 │
 ├── domain/
-│   ├── models.py
-│   └── ports.py
+│   └── __init__.py
 │
 ├── infrastructure/
-│   ├── weather_providers/
-│   │   └── openweather_adapter.py
-│   │
-│   ├── geocoding/
-│   │   └── geocoding_service.py
-│   │
-│   ├── cache/
-│   │   ├── in_memory_cache.py
-│   │   └── cached_provider.py
-│   │
-│   ├── persistence/
-│   │   ├── orm_models.py
-│   │   └── repository.py
-│   │
-│   └── http/
-│       └── client_manager.py
+│   └── __init__.py
 │
-├── config/
-│   └── settings.py
+├── presentation/
+│   ├── api/
+│   │   ├── app.py
+│   │   └── __init__.py
+│   │
+│   ├── cli/
+│   │   ├── main.py
+│   │   └── __init__.py
+│   │
+│   └── __init__.py
 │
-└── main.py
+├── main.py
+└── __init__.py
+
+tests/
+├── unit/
+├── integration/
+│   └── test_bootstrap.py
+└── conftest.py
 ```
 
 ---
@@ -339,18 +441,18 @@ gunicorn src.weather_analytics_dashboard.main:app \
 
 ### Planned
 
-* Redis cache
-* Docker support
-* Cloud deployment (Railway / Render)
+- Redis cache
+- Docker support
+- Cloud deployment (Railway / Render)
 
 ---
 
 ## 📈 Roadmap
 
-* [ ] Metrics endpoint (Prometheus)
-* [ ] Redis cache
-* [ ] PostgreSQL support
-* [ ] Docker
+- [ ] Metrics endpoint (Prometheus)
+- [ ] Redis cache
+- [ ] PostgreSQL support
+- [ ] Docker
 
 ---
 
@@ -372,11 +474,11 @@ gunicorn src.weather_analytics_dashboard.main:app \
 
 This project is intentionally designed to reflect **real-world backend engineering**, including:
 
-* Clear architectural boundaries
-* Explicit trade-offs (documented via ADRs)
-* Provider abstraction without leaking infrastructure details
-* Resilience patterns (retry with exponential backoff)
-* Async-first design
-* Testable, modular components
+- Clear architectural boundaries
+- Explicit trade-offs (documented via ADRs)
+- Provider abstraction without leaking infrastructure details
+- Resilience patterns (retry with exponential backoff)
+- Async-first design
+- Testable, modular components
 
 It is not just a weather API wrapper—it is a **system design exercise implemented in code**.
