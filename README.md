@@ -9,7 +9,7 @@
 
 A production-style weather data service with intelligent caching, query history, and dual interfaces (REST API + CLI). Built to demonstrate **clean architecture, async Python, and real-world backend patterns**.
 
-> 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slices underway toward v1.0.0.
+> 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slice (/health endpoint) currently being implemented.
 
 ---
 
@@ -32,21 +32,21 @@ git clone https://github.com/lridalc/weather-analytics-dashboard
 cd weather-analytics-dashboard
 
 # Install dependencies
-uv sync
+make install-dev
 
 # Configure environment
 cp .env.example .env
 # Add your OpenWeatherMap API key (https://openweathermap.org/api)
 
 # Run API
-uv run uvicorn weather_analytics_dashboard.main:app --reload
+make dev
 
 # Test endpoints
 curl http://localhost:8000/health
 curl "http://localhost:8000/weather/current?city=London"
 
 # CLI usage
-uv run weather now London
+make cli now London
 ```
 
 ---
@@ -54,6 +54,9 @@ uv run weather now London
 ## 🗺️ Development Roadmap
 
 This project follows a **vertical-slice, test-driven development approach**, where each milestone delivers a fully working feature across all layers.
+
+> [!NOTE]
+> For a more detailed insight, see [development plan](docs/development-plan.md).
 
 ---
 
@@ -65,8 +68,8 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 | 0.2.0   | Current Weather API (`/weather/current`) | [ ]    |
 | 0.3.0   | Forecast System (`/weather/forecast`)    | [ ]    |
 | 0.4.0   | History Persistence (`/weather/history`) | [ ]    |
-| 0.5.0   | Caching Layer                            | [ ]    |
-| 0.6.0   | Retry & Resilience                       | [ ]    |
+| 0.5.0   | Retry & Resilience                       | [ ]    |
+| 0.6.0   | Caching Layer                            | [ ]    |
 | 1.0.0   | Production Release                       | [ ]    |
 
 ---
@@ -78,7 +81,7 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 - [x] Project scaffolding
 - [x] Documentation structure (README, ADRs, scope)
 - [x] Smoke tests (API + CLI)
-- [ ] CI/CD pipeline setup and automation
+- [x] CI/CD pipeline setup and automation
 - [ ] Settings & configuration system
 - [ ] Base FastAPI application bootstrap
 
@@ -123,6 +126,15 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 ---
 
+#### Resilience & Retry Logic
+
+- [ ] Retry mechanism with exponential backoff
+- [ ] Configurable retry settings
+- [ ] Handling 5xx and timeout errors
+- [ ] Failure simulation tests
+
+---
+
 #### Caching Layer
 
 - [ ] Weather cache (5 min TTL)
@@ -130,16 +142,7 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 - [ ] FIFO eviction strategy
 - [ ] Cache decorator implementation
 - [ ] Cache hit/miss tests
-
----
-
-#### Resilience & Retry Logic
-
-- [ ] Retry mechanism with exponential backoff
-- [ ] Configurable retry settings
-- [ ] Handling 5xx and timeout errors
 - [ ] Cached fallback on failure
-- [ ] Failure simulation tests
 
 ---
 
@@ -181,7 +184,7 @@ Same business logic as API → different interface.
 
 ---
 
-### ⚡ Smart Caching (Key Feature)
+### ⚡ Smart Caching
 
 Two-layer cache system:
 
@@ -283,35 +286,30 @@ This logic is **fully encapsulated inside the provider adapter**, keeping the do
 The current structure is the foundational layer. The system will evolve incrementally following the design defined in [ADR-023](docs/decisions.md).
 
 ```bash
-src/weather_analytics_dashboard/
-├── application/
-│   └── __init__.py
+.
+├── docs/                  # Architecture, ADRs, and development planning
+│   ├── architecture.md
+│   ├── decisions.md
+│   ├── development-plan.md
+│   └── project-scope.md
 │
-├── domain/
-│   └── __init__.py
+├── src/weather_analytics_dashboard/
+│   ├── application/       # Use cases (business workflows)
+│   ├── domain/            # Core business logic and models
+│   ├── infrastructure/    # External systems (DB, APIs, cache)
+│   ├── presentation/      # Interfaces (API + CLI)
+│   │   ├── api/
+│   │   └── cli/
+│   └── main.py            # Application entry point
 │
-├── infrastructure/
-│   └── __init__.py
+├── tests/
+│   ├── unit/              # Unit tests (domain & services)
+│   └── integration/       # Integration tests (API, DB)
 │
-├── presentation/
-│   ├── api/
-│   │   ├── app.py
-│   │   └── __init__.py
-│   │
-│   ├── cli/
-│   │   ├── main.py
-│   │   └── __init__.py
-│   │
-│   └── __init__.py
-│
-├── main.py
-└── __init__.py
-
-tests/
-├── unit/
-├── integration/
-│   └── test_bootstrap.py
-└── conftest.py
+├── .github/               # CI/CD and PR templates
+├── Makefile               # Development commands
+├── pyproject.toml         # Project configuration
+└── README.md
 ```
 
 ---
@@ -398,8 +396,7 @@ GET /weather/history?city=London
 | Mocks       | External providers |
 
 ```bash
-uv run pytest -v
-uv run pytest --cov=src/weather_analytics_dashboard
+make test
 ```
 
 ---
@@ -429,12 +426,101 @@ uv run pytest --cov=src/weather_analytics_dashboard
 
 ---
 
+## 🛠️ Development Commands
+
+This project uses a `Makefile` to standardize development workflows and ensure consistency across environments.
+
+> 💡 All commands are executed via `uv run`, so you don’t need to manually activate a virtual environment.
+
+---
+
+### 📦 Installation
+
+```bash
+make install      # Install production dependencies
+make install-dev  # Install all dependencies including development tools
+```
+
+---
+
+### 🚀 Running the application
+
+```bash
+make dev  # Run API with hot reload (development)
+make run  # Run API without reload (production-like)
+make cli  # Run CLI tool
+```
+
+---
+
+### 🧪 Testing
+
+```bash
+make test
+```
+
+Runs the full test suite with verbose output.
+
+---
+
+### 🎨 Code Quality
+
+```bash
+make lint         # Run ruff linter
+make format       # Auto-format code
+make format-check # Check formatting without modifying files
+make type-check   # Run mypy static type checking
+```
+
+---
+
+### ✅ Full project checks
+
+```bash
+make check
+```
+
+Runs all quality checks:
+
+* Linting (ruff)
+* Formatting validation
+* Tests (pytest)
+* Type checking (mypy)
+
+---
+
+### 🧹 Cleanup
+
+```bash
+make clean
+```
+
+Removes cache files and temporary artifacts:
+
+* `__pycache__`
+* `.pyc`
+* `.mypy_cache`
+* `.pytest_cache`
+* `.ruff_cache`
+
+---
+
+### 📋 Help
+
+```bash
+make help
+```
+
+Displays all available commands.
+
+---
+
 ## 🚢 Deployment
 
 ### Local
 
 ```bash
-gunicorn src.weather_analytics_dashboard.main:app \
+gunicorn weather_analytics_dashboard.main:app \
   --workers 4 \
   --worker-class uvicorn.workers.UvicornWorker
 ```
@@ -447,7 +533,7 @@ gunicorn src.weather_analytics_dashboard.main:app \
 
 ---
 
-## 📈 Roadmap
+## 📈 Future Roadmap
 
 - [ ] Metrics endpoint (Prometheus)
 - [ ] Redis cache
@@ -480,5 +566,7 @@ This project is intentionally designed to reflect **real-world backend engineeri
 - Resilience patterns (retry with exponential backoff)
 - Async-first design
 - Testable, modular components
+
+This project was built to practice designing a production-ready backend system from scratch, focusing on maintainability, scalability, and real-world trade-offs.
 
 It is not just a weather API wrapper—it is a **system design exercise implemented in code**.

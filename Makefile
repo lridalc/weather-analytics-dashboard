@@ -16,6 +16,10 @@ dev:
 run:
 	uv run uvicorn weather_analytics_dashboard.main:app
 
+# Run the CLI tool
+cli:
+	uv run weather
+
 # Run all tests with verbose output
 test:
 	uv run pytest -v

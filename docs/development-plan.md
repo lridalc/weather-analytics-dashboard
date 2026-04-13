@@ -2,7 +2,7 @@
 
 This document outlines the complete development roadmap including branches, commits and version milestones.
 
-## Version Milestones
+## Version Milestones (Make it work, make it right, make it fast)
 
 | Version | Feature                                              |
 |---------|------------------------------------------------------|
@@ -10,8 +10,8 @@ This document outlines the complete development roadmap including branches, comm
 | 0.2.0   | `/current` endpoint working                          |
 | 0.3.0   | `/forecast` endpoint working                         |
 | 0.4.0   | `/history` endpoint working (all endpoints complete) |
-| 0.5.0   | Caching working                                      |
-| 0.6.0   | Retry working                                        |
+| 0.5.0   | Retry working                                        |
+| 0.6.0   | Caching working                                      |
 | 1.0.0   | Project finalized                                    |
 
 ---
@@ -187,6 +187,12 @@ git merge --no-ff chore/3-config-settings -m "chore: merge base configuration sy
 git merge --no-ff feat/1-health-endpoint -m "feat: add health endpoint (vertical slice)"
 ```
 
+**Merge to main:**
+```bash
+git merge --no-ff develop -m "chore(release): merge develop into main for v0.1.0"
+git tag -a "v0.1.0" -m "feat: release v0.1.0 - health endpoint working"
+```
+
 ---
 	
 ## Phase 9: `/current` Endpoint
@@ -251,6 +257,12 @@ git merge --no-ff feat/2-weather-current-infra -m "feat: merge OpenWeather adapt
 git merge --no-ff feat/2-weather-current-cli -m "feat: merge CLI command for current weather into develop"
 ```
 
+**Merge to main:**
+```bash
+git merge --no-ff develop -m "chore(release): merge develop into main for v0.2.0"
+git tag -a "v0.2.0" -m "feat: release v0.2.0 - current weather endpoint working"
+```
+
 ---
 
 ## Phase 10: `/forecast` Endpoint
@@ -311,6 +323,12 @@ git merge --no-ff feat/3-weather-forecast-cli -m "feat: merge forecast CLI comma
 **Merge to develop:**
 ```bash
 git merge --no-ff feat/3-weather-forecast-infra -m "feat: merge OpenWeather forecast support into develop"
+```
+
+**Merge to main:**
+```bash
+git merge --no-ff develop -m "chore(release): merge develop into main for v0.3.0"
+git tag -a "v0.3.0" -m "feat: release v0.3.0 - forecast endpoint working"
 ```
 
 ---
@@ -391,11 +409,40 @@ git merge --no-ff feat/4-weather-history-api -m "feat: merge history API endpoin
 git merge --no-ff feat/4-weather-history-cli -m "feat: merge history CLI command into develop"
 ```
 
+**Merge to main:**
+```bash
+git merge --no-ff develop -m "chore(release): merge develop into main for v0.4.0"
+git tag -a "v0.4.0" -m "feat: release v0.4.0 - history endpoint working (all endpoints complete)"
+```
+
 ---
 
-## Phase 12: Caching
+## Phase 12: Retry Logic
 
-**Branch:** `feat/5-caching-decorator`
+**Branch:** `feat/5-retry-http`
+
+| Commit | Message                                                    |
+|--------|------------------------------------------------------------|
+| 1      | `test(infra): add retry behavior tests`                    |
+| 2      | `feat(infra): implement http client with retry (tenacity)` |
+| 3      | `chore(infra): wire retry http client into provider`       |
+
+**Merge to develop:**
+```bash
+git merge --no-ff feat/5-retry-http -m "feat: merge retry http client into develop"
+```
+
+**Merge to main:**
+```bash
+git merge --no-ff develop -m "chore(release): merge develop into main for v0.5.0"
+git tag -a "v0.5.0" -m "feat: release v0.5.0 - retry working"
+```
+
+---
+
+## Phase 13: Caching
+
+**Branch:** `feat/6-caching`
 
 | Commit | Message                                             |
 |--------|-----------------------------------------------------|
@@ -406,24 +453,13 @@ git merge --no-ff feat/4-weather-history-cli -m "feat: merge history CLI command
 
 **Merge to develop:**
 ```bash
-git merge --no-ff feat/5-caching-decorator -m "feat: merge caching decorator for weather provider into develop"
+git merge --no-ff feat/6-caching -m "feat: merge caching decorator for weather provider into develop"
 ```
 
----
-
-## Phase 13: Retry Logic
-
-**Branch:** `feat/6-retry-http`
-
-| Commit | Message                                                    |
-|--------|------------------------------------------------------------|
-| 1      | `test(infra): add retry behavior tests`                    |
-| 2      | `feat(infra): implement http client with retry (tenacity)` |
-| 3      | `chore(infra): wire retry http client into provider`       |
-
-**Merge to develop:**
+**Merge to main:**
 ```bash
-git merge --no-ff feat/6-retry-http -m "feat: merge retry http client into develop"
+git merge --no-ff develop -m "chore(release): merge develop into main for v0.6.0"
+git tag -a "v0.6.0" -m "feat: release v0.6.0 - caching working"
 ```
 
 ---
