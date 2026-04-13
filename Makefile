@@ -12,25 +12,29 @@ install-dev:
 dev:
 	uv run uvicorn weather_analytics_dashboard.main:app --reload
 
+# Run the API server without hot reload (for production)
+run:
+	uv run uvicorn weather_analytics_dashboard.main:app
+
 # Run all tests with verbose output
 test:
-	uv run pytest tests/ -v
+	uv run pytest -v
 
-# Run ruff linter on the src/ directory
+# Run ruff linter
 lint:
-	uv run ruff check src/
+	uv run ruff check .
 
-# Run ruff formatter on the src/ directory
+# Run ruff formatter
 format:
-	uv run ruff format src/
+	uv run ruff format .
 
 # Run ruff formatter in check mode to verify formatting without making changes
 format-check:
-	uv run ruff format src/ --check
+	uv run ruff format . --check
 
-# Run mypy type checking on src/ and tests/ directories
+# Run mypy type checking
 type-check:
-	uv run mypy src/ tests/
+	uv run mypy .
 
 # Run lint, format check, and tests
 check: lint format-check test type-check
@@ -47,6 +51,7 @@ help:
 	@echo "  make install      - Install dependencies in the virtual environment"
 	@echo "  make install-dev  - Install dependencies including development tools"
 	@echo "  make dev          - Run API server with hot reload"
+	@echo "  make run          - Run API server without hot reload (production)"
 	@echo "  make test         - Run all tests"
 	@echo "  make lint         - Run ruff linter"
 	@echo "  make format       - Run ruff formatter"
