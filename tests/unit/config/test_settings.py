@@ -3,8 +3,17 @@
 import pytest
 from pydantic import ValidationError
 
-from weather_analytics_dashboard.config.settings import Settings
-
+from weather_analytics_dashboard.config import (
+    DEFAULT_CACHE_MAX_SIZE,
+    DEFAULT_CACHE_TTL_GEOCODING,
+    DEFAULT_CACHE_TTL_WEATHER,
+    DEFAULT_RATE_LIMIT_REQUESTS,
+    DEFAULT_RETRY_MAX_ATTEMPTS,
+    DEFAULT_RETRY_WAIT_SECONDS,
+    DEFAULT_ENVIRONMENT,
+    DEFAULT_LOG_LEVEL,
+    Settings,
+)
 
 class TestSettings:
     """Test suite for Pydantic settings configuration."""
@@ -41,6 +50,13 @@ class TestSettings:
         errors = exc_info.value.errors()
         assert any("api_key" in e["loc"] for e in errors)
 
+    def test_api_key_with_surrounding_whitespace_is_trimmed(self, monkeypatch):
+        """API_KEY with leading/trailing whitespace should be trimmed."""
+        monkeypatch.setenv("API_KEY", "  abc123  ")
+
+        settings = Settings()
+        assert settings.api_key == "abc123"
+
     # =========================================================================
     # DEFAULT VALUES TESTS
     # =========================================================================
@@ -52,14 +68,14 @@ class TestSettings:
         settings = Settings()
 
         assert settings.api_key == "test-api-key-123"
-        assert settings.cache_ttl_weather == 300
-        assert settings.cache_ttl_geocoding == 604800
-        assert settings.cache_max_size == 100
-        assert settings.retry_max_attempts == 3
-        assert settings.retry_wait_seconds == 1
-        assert settings.rate_limit_requests == 55
-        assert settings.environment == "dev"
-        assert settings.log_level == "INFO"
+        assert settings.cache_ttl_weather == DEFAULT_CACHE_TTL_WEATHER
+        assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
+        assert settings.cache_max_size == DEFAULT_CACHE_MAX_SIZE
+        assert settings.retry_max_attempts == DEFAULT_RETRY_MAX_ATTEMPTS
+        assert settings.retry_wait_seconds == DEFAULT_RETRY_WAIT_SECONDS
+        assert settings.rate_limit_requests == DEFAULT_RATE_LIMIT_REQUESTS
+        assert settings.environment == DEFAULT_ENVIRONMENT
+        assert settings.log_level == DEFAULT_LOG_LEVEL
 
     # =========================================================================
     # ENVIRONMENT VARIABLE OVERRIDE TESTS
@@ -104,7 +120,7 @@ class TestSettings:
         assert settings.api_key == "kwarg-key"
         assert settings.cache_ttl_weather == 999
         assert settings.environment == "test"
-        assert settings.cache_ttl_geocoding == 604800  # default
+        assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
 
     # =========================================================================
     # TYPE VALIDATION AND COERCION TESTS
@@ -322,7 +338,7 @@ class TestSettings:
         assert settings.api_key == "direct-kwarg-key"
         assert settings.cache_ttl_weather == 999
         assert settings.environment == "test"
-        assert settings.cache_ttl_geocoding == 604800  # default
+        assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
 
     def test_settings_model_dump_returns_dict(self, monkeypatch):
         """Settings should be serializable to dict."""
