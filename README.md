@@ -37,6 +37,7 @@ make install-dev
 # Configure environment
 cp .env.example .env
 # Add your OpenWeatherMap API key (https://openweathermap.org/api)
+# The .env file expects: API_KEY=your_api_key_here
 
 # Run API
 make dev
@@ -63,7 +64,7 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 ### 📦 Version Milestones
 
 | Version | Focus                                    | Status |
-| ------- | ---------------------------------------- | ------ |
+| :-----: | ---------------------------------------- | :----: |
 | 0.1.0   | Foundation (`/health`)                   | [ ]    |
 | 0.2.0   | Current Weather API (`/weather/current`) | [ ]    |
 | 0.3.0   | Forecast System (`/weather/forecast`)    | [ ]    |
@@ -208,6 +209,7 @@ From a user perspective, both contribute to performance optimization.
 ### 🔁 Resilience
 
 - Automatic retry with exponential backoff on transient external API failures
+- Global rate limiting (55 req/min) to protect the external API quota
 - Graceful degradation when the provider is unavailable
 
 ---
@@ -404,15 +406,15 @@ make test
 ## ⚙️ Configuration
 
 | Variable              | Required | Default |
-| --------------------- | -------- | ------- |
-| `OPENWEATHER_API_KEY` | ✅       | —       |
+| --------------------- | :------: | ------- |
+| `API_KEY`             | ✅       | —       |
 | `CACHE_TTL_WEATHER`   | ❌       | 300     |
 | `CACHE_TTL_GEOCODING` | ❌       | 604800  |
 | `CACHE_MAX_SIZE`      | ❌       | 100     |
-| `DATABASE_URL`        | ❌       | sqlite  |
-| `LOG_LEVEL`           | ❌       | INFO    |
+| `RATE_LIMIT_REQUESTS` | ❌       | 55      |
 | `RETRY_MAX_ATTEMPTS`  | ❌       | 3       |
 | `RETRY_WAIT_SECONDS`  | ❌       | 1       |
+| `LOG_LEVEL`           | ❌       | INFO    |
 
 ---
 
@@ -550,9 +552,9 @@ gunicorn weather_analytics_dashboard.main:app \
 
 ## 👤 Author
 
-**lridalc** - [https://github.com/lridalc](https://github.com/lridalc)
+**lridalc** - <https://github.com/lridalc>
 
-**Project Link** - [https://github.com/lridalc/weather-analytics-dashboard](https://github.com/lridalc/weather-analytics-dashboard)
+**Project Link** - <https://github.com/lridalc/weather-analytics-dashboard>
 
 ---
 
