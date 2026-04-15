@@ -20,12 +20,12 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 ### API Service
 
-| Endpoint | Method | Description | Query Parameters |
-|----------|--------|-------------|------------------|
-| `/weather/current` | GET | Retrieve current temperature for a city | `city` (required) |
-| `/weather/forecast` | GET | Forecast data | `city` (required), `days` (default: 5) |
-| `/weather/history` | GET | Last 10 queries for a city | `city` (required) |
-| `/health` | GET | Health check | None |
+| Endpoint            | Method | Description                             | Query Parameters                       |
+| ------------------- | :----: | --------------------------------------- | -------------------------------------- |
+| `/health`           | GET    | Health check                            | None                                   |
+| `/weather/current`  | GET    | Retrieve current temperature for a city | `city` (required)                      |
+| `/weather/forecast` | GET    | Forecast data                           | `city` (required), `days` (default: 5) |
+| `/weather/history`  | GET    | Last 10 queries for a city              | `city` (required)                      |
 
 **Response Details:**
 
@@ -36,11 +36,11 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 ### Command Line Interface
 
-| Command | Description | Arguments/Options |
-|---------|-------------|-------------------|
-| `weather now <city>` | Display current weather for specified city | City name (positional) |
-| `weather forecast <city>` | Display forecast for specified city | `--days` option (default: 5) |
-| `weather history <city>` | Display local query history for city | City name (positional) |
+| Command                   | Description                                | Arguments/Options            |
+|---------------------------|--------------------------------------------|------------------------------|
+| `weather now <city>`      | Display current weather for specified city | City name (positional)       |
+| `weather forecast <city>` | Display forecast for specified city        | `--days` option (default: 5) |
+| `weather history <city>`  | Display local query history for city       | City name (positional)       |
 
 ### Caching System
 
@@ -112,23 +112,24 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 ## Configuration
 
-| Variable              | Description              | Default    |
-| --------------------- | ------------------------ | ---------- |
-| `OPENWEATHER_API_KEY` | OpenWeatherMap key       | Required   |
-| `CACHE_TTL_WEATHER`   | Weather TTL (seconds)    | 300        |
-| `CACHE_TTL_GEOCODING` | Geocoding TTL (seconds)  | 604800     |
-| `CACHE_MAX_SIZE`      | Cache size (entries)     | 100        |
-| `DATABASE_URL`        | SQLite path              | weather.db |
-| `RETRY_MAX_ATTEMPTS`  | Max retry attempts       | 3          |
-| `RETRY_WAIT_SECONDS`  | Initial backoff (seconds)| 1          |
+| Variable              | Description               | Default  |
+| --------------------- | ------------------------- | -------- |
+| `API_KEY`             | Weather API key           | Required |
+| `CACHE_TTL_WEATHER`   | Weather TTL (seconds)     | 300      |
+| `CACHE_TTL_GEOCODING` | Geocoding TTL (seconds)   | 604800   |
+| `CACHE_MAX_SIZE`      | Max cache entries         | 100      |
+| `RETRY_MAX_ATTEMPTS`  | Max retry attempts        | 3        |
+| `RETRY_WAIT_SECONDS`  | Initial backoff (seconds) | 1        |
+| `RATE_LIMIT_REQUESTS` | Max requests per minute   | 55       |
+| `LOG_LEVEL`           | Logging verbosity         | INFO     |
 
 ---
 
 ## Assumptions
 
-* City names are valid English strings
-* External API is mostly available (transient failures handled via retry)
-* Single-process execution
+- City names are valid English strings
+- External API is mostly available (transient failures handled via retry)
+- Single-process execution
 
 ---
 
@@ -146,10 +147,10 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 ## Out of Scope
 
-* Authentication
-* Multiple temperature units
-* GUI
-* Multi-provider support (v1.0)
+- Authentication
+- Multiple temperature units
+- GUI
+- Multi-provider support (v1.0)
 
 ## Success Criteria
 
@@ -162,12 +163,12 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 ## Project Deliverables
 
-* Source code
-* README
-* ADRs
-* API docs
-* CLI docs
-* Tests
+- Source code
+- README
+- ADRs
+- API docs
+- CLI docs
+- Tests
 
 ---
 

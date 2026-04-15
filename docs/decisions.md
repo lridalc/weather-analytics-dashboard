@@ -45,8 +45,8 @@ Each ADR follows this structure:
 
 ## Summary Table
 
-| ADR     | Category       | Title                            | Decision                           |   |
-| ------- | -------------- | -------------------------------- | ---------------------------------- | - |
+| ADR     | Category       | Title                            | Decision                           |     |
+| ------- | -------------- | -------------------------------- | ---------------------------------- | :-: |
 | ADR-001 | Architecture   | Ports location                   | In domain layer                    | [🔗](#adr-001-ports-interfaces-location-domain-vs-application-layer) |
 | ADR-002 | Architecture   | Async strategy                   | Async throughout                   | [🔗](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) |
 | ADR-003 | Validation     | Data validation tool             | Pydantic v2                        | [🔗](#adr-003-data-validation-pydantic-v2) |
@@ -701,7 +701,7 @@ Accepted
 
 ### Context
 
-The application requires structured configuration for API keys, cache settings, database connections, and retry parameters.
+The application requires structured configuration for API keys, cache settings, and retry parameters. To maintain a clean abstraction over infrastructure, the configuration layer uses generic variable names (e.g., `API_KEY` rather than `OPENWEATHER_API_KEY`). Database connections are not exposed for configuration as the v1.0 deployment relies on a fixed local SQLite file.
 
 ### Decision
 
@@ -1252,6 +1252,7 @@ This reinforces the testing strategy defined in ADR-020.
 | **Database**        | SQLite + aiosqlite      | [ADR-010](#adr-010-local-persistence-sqlite-vs-postgresql) |
 | **ORM**             | SQLAlchemy 2.0+ (async) | [ADR-002](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) |
 | **Cache Strategy**  | In-memory dict + TTL    | [ADR-013](#adr-013-cache-type-in-memory-cache-vs-external-cache), [ADR-015](#adr-015-cache-eviction-strategy-fifo--ttl) |
+| **Rate Limiting**   | In-memory fixed window  | [ADR-021](#adr-021-rate-limiting-strategy-global-quota-protection) |
 | **Logging**         | Python `logging` module | [ADR-017](#adr-017-logging-standard-library-logging-vs-structlog) |
 | **CLI Framework**   | Click                   | [ADR-018](#adr-018-cli-framework-click-vs-typer) |
 | **Testing**         | pytest ecosystem        | [ADR-020](#adr-020-testing-strategy-layered-testing-approach) |
@@ -1278,8 +1279,8 @@ This reinforces the testing strategy defined in ADR-020.
 
 # CHANGELOG
 
-| Date       | ADR     | Decision                                          | Change     |   |
-| ---------- | ------- | ------------------------------------------------- | ---------- | - |
+| Date       | ADR     | Decision                                          | Change     |     |
+| ---------- | ------- | ------------------------------------------------- | ---------- | :-: |
 | 2026-04-09 | ADR-001 | Ports in domain layer                             | Accepted   | [🔗](#adr-001-ports-interfaces-location-domain-vs-application-layer) |
 | 2026-04-09 | ADR-002 | Async everywhere                                  | Accepted   | [🔗](#adr-002-async-strategy-async-throughout-vs-mixed-syncasync) |
 | 2026-04-09 | ADR-003 | Pydantic v2 for data validation                   | Accepted   | [🔗](#adr-003-data-validation-pydantic-v2) |
@@ -1302,4 +1303,4 @@ This reinforces the testing strategy defined in ADR-020.
 | 2026-04-12 | ADR-020 | Layered testing approach                          | Accepted   | [🔗](#adr-020-testing-strategy-layered-testing-approach) |
 | 2026-04-12 | ADR-021 | Global quota protection                           | Accepted   | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
 | 2026-04-12 | ADR-022 | Composition root (manual DI)                      | Accepted   | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
-| 2026-04-12 | ADR-023 | Layer-first module organization                  | Accepted   | [🔗](#adr-023-module-organization--naming-convention) |
+| 2026-04-12 | ADR-023 | Layer-first module organization                   | Accepted   | [🔗](#adr-023-module-organization--naming-convention) |

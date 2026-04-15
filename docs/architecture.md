@@ -6,10 +6,10 @@ The Weather Analytics Dashboard follows a layered architecture inspired by Clean
 
 The architecture emphasizes:
 
-* Clear boundaries between layers
-* Independence of business logic from infrastructure concerns
-* Testability through abstraction and dependency inversion
-* Flexibility to replace external systems without impacting core logic
+- Clear boundaries between layers
+- Independence of business logic from infrastructure concerns
+- Testability through abstraction and dependency inversion
+- Flexibility to replace external systems without impacting core logic
 
 The core idea is simple:
 
@@ -58,10 +58,10 @@ The presentation layer handles all user interaction.
 
 **Responsibilities:**
 
-* Accept user input from API or CLI
-* Validate request parameters
-* Invoke application services
-* Format and return responses (JSON for API, text for CLI)
+- Accept user input from API or CLI
+- Validate request parameters
+- Invoke application services
+- Format and return responses (JSON for API, text for CLI)
 
 The presentation layer does **not** contain business logic. It serves purely as an entry point and response formatter.
 
@@ -73,10 +73,10 @@ The application layer orchestrates the execution of use cases. It acts as the co
 
 **Responsibilities:**
 
-* Implement application-specific workflows
-* Coordinate between domain logic and external systems
-* Handle application-level errors
-* Persist query history
+- Implement application-specific workflows
+- Coordinate between domain logic and external systems
+- Handle application-level errors
+- Persist query history
 
 This layer defines the operations that the system supports (e.g., retrieving current weather, forecasting, retrieving history).
 
@@ -88,10 +88,10 @@ The domain layer contains the core business logic and domain models. It defines 
 
 **Responsibilities:**
 
-* Define domain entities and value objects
-* Encapsulate business rules and transformations
-* Define **ports (interfaces)** required by the application
-* Remain **completely independent** of external systems and frameworks
+- Define domain entities and value objects
+- Encapsulate business rules and transformations
+- Define **ports (interfaces)** required by the application
+- Remain **completely independent** of external systems and frameworks
 
 The domain layer operates on **location as text** (e.g., `"Madrid"`), without knowledge of how that location is resolved.
 
@@ -103,11 +103,11 @@ The infrastructure layer provides concrete implementations for external dependen
 
 **Responsibilities:**
 
-* Implement weather providers (external APIs)
-* Handle data persistence for query history
-* Implement caching mechanisms
-* Perform HTTP communication with retry logic
-* Provide the shared geocoding service used by providers that require coordinate resolution
+- Implement weather providers (external APIs)
+- Handle data persistence for query history
+- Implement caching mechanisms
+- Perform HTTP communication with retry logic
+- Provide the shared geocoding service used by providers that require coordinate resolution
 
 Infrastructure components implement **interfaces defined in the domain layer**, adhering to the Dependency Inversion Principle.
 
@@ -131,9 +131,9 @@ class WeatherProviderPort:
     async def get_forecast(location: str, days: int): ...
 ```
 
-* The domain works with **location as a string**
-* No mention of coordinates, geocoding, or provider-specific requirements
-* All provider-specific logic is encapsulated in infrastructure
+- The domain works with **location as a string**
+- No mention of coordinates, geocoding, or provider-specific requirements
+- All provider-specific logic is encapsulated in infrastructure
 
 ---
 
@@ -157,10 +157,10 @@ This logic is **fully internal to the adapter** and invisible to the domain and 
 
 ### Geocoding Service
 
-* Responsibility: resolve location names into coordinates
-* Scope: infrastructure-only, **shared across all providers that require it**
-* Not exposed as a domain port
-* Includes its own in-memory cache (7-day TTL) to avoid redundant lookups
+- Responsibility: resolve location names into coordinates
+- Scope: infrastructure-only, **shared across all providers that require it**
+- Not exposed as a domain port
+- Includes its own in-memory cache (7-day TTL) to avoid redundant lookups
 
 Making the geocoding service shared (rather than duplicated per provider) prevents behavioral divergence and keeps the codebase DRY, while still treating it as a pure infrastructure concern.
 
@@ -176,10 +176,10 @@ coordinates = await geocoding_service.resolve("Madrid")
 
 HTTP calls to external APIs are wrapped with **automatic retry using exponential backoff**.
 
-* Applied at the HTTP client level, transparent to providers
-* Retries only on transient errors (network timeouts, 5xx responses)
-* Configurable: max attempts and initial wait time
-* After all retries are exhausted, a domain exception is raised
+- Applied at the HTTP client level, transparent to providers
+- Retries only on transient errors (network timeouts, 5xx responses)
+- Configurable: max attempts and initial wait time
+- After all retries are exhausted, a domain exception is raised
 
 This keeps retry logic out of provider adapters and centralizes it in the HTTP layer.
 
@@ -191,9 +191,9 @@ Caching is implemented using the **Decorator Pattern**.
 
 ### Principles
 
-* The base provider **does not handle caching**
-* Caching is applied transparently by wrapping the provider
-* Keeps responsibilities separated (SRP)
+- The base provider **does not handle caching**
+- Caching is applied transparently by wrapping the provider
+- Keeps responsibilities separated (SRP)
 
 ### Structure
 
@@ -236,9 +236,9 @@ User → API/CLI → Application → WeatherProvider → (Decorator Cache) → P
 
 ## Application Services
 
-* GetCurrentWeatherService
-* GetForecastService
-* GetHistoryService
+- GetCurrentWeatherService
+- GetForecastService
+- GetHistoryService
 
 ---
 
@@ -288,33 +288,35 @@ Infrastructure failures never leak to clients. The same error taxonomy is applie
 
 ### Configuration
 
-* Centralized configuration via settings module
+- Centralized configuration via a `pydantic-settings` module
+- Configuration is loaded from environment variables or a `.env` file
+- Infrastructure-specific details (such as the provider API key) are read using generic variable names (e.g., `API_KEY`) to maintain abstraction and avoid coupling the configuration layer to a specific vendor
 
 ### Logging
 
-* Request logs
-* External API call logs
+- Request logs
+- External API call logs
 
 ### Observability (future)
 
-* Cache metrics
-* Latency tracking
+- Cache metrics
+- Latency tracking
 
 ---
 
 ## Deployment (v1.0)
 
-* Single FastAPI application
-* SQLite database
-* In-memory cache
+- Single FastAPI application
+- Local file-based persistence (SQLite)
+- In-memory cache
 
 ---
 
 ## Key Architectural Decisions Reflected
 
-* Domain depends only on **abstractions, not implementations**
-* External API details are **fully encapsulated in providers**
-* Geocoding is treated as an **internal infrastructure concern**, implemented as a **shared service**
-* Caching is applied via **composition (decorator), not inheritance**
-* Retry logic is centralized at the **HTTP layer**, not scattered across adapters
-* System is designed for **extensibility without modifying core logic**
+- Domain depends only on **abstractions, not implementations**
+- External API details are **fully encapsulated in providers**
+- Geocoding is treated as an **internal infrastructure concern**, implemented as a **shared service**
+- Caching is applied via **composition (decorator), not inheritance**
+- Retry logic is centralized at the **HTTP layer**, not scattered across adapters
+- System is designed for **extensibility without modifying core logic**

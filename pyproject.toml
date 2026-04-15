@@ -1,11 +1,16 @@
 [project]
 name = "weather-analytics-dashboard"
 version = "0.1.0"
+authors = [{ name = "lridalc", email = "lridalc1m@gmail.com" }]
 description = "Weather Analytics Dashboard with REST API and CLI"
 readme = "README.md"
 requires-python = ">=3.12"
-authors = [{ name = "lridalc", email = "lridalc1m@gmail.com" }]
-license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE"]
 keywords = ["weather", "analytics", "dashboard", "cli", "fastapi"]
 dependencies = [
     "aiosqlite>=0.22.1",
@@ -41,7 +46,7 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 88
+# line-length = 88 by default
 target-version = "py312"
 
 [tool.ruff.lint]
@@ -57,6 +62,7 @@ extend-select = [
 ]
 
 [tool.pytest.ini_options]
+addopts = ["--import-mode=importlib"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
@@ -84,3 +90,7 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
 ]
+
+[build-system]
+requires = ["uv_build >= 0.11.6, <0.12.0"]
+build-backend = "uv_build"
