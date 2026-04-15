@@ -83,8 +83,8 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 - [x] Documentation structure (README, ADRs, scope)
 - [x] Smoke tests (API + CLI)
 - [x] CI/CD pipeline setup and automation
-- [ ] Settings & configuration system
-- [ ] Base FastAPI application bootstrap
+- [x] Settings & configuration system
+- [x] Base FastAPI application bootstrap
 
 ---
 
