@@ -7,13 +7,14 @@ from weather_analytics_dashboard.config import (
     DEFAULT_CACHE_MAX_SIZE,
     DEFAULT_CACHE_TTL_GEOCODING,
     DEFAULT_CACHE_TTL_WEATHER,
+    DEFAULT_ENVIRONMENT,
+    DEFAULT_LOG_LEVEL,
     DEFAULT_RATE_LIMIT_REQUESTS,
     DEFAULT_RETRY_MAX_ATTEMPTS,
     DEFAULT_RETRY_WAIT_SECONDS,
-    DEFAULT_ENVIRONMENT,
-    DEFAULT_LOG_LEVEL,
     Settings,
 )
+
 
 class TestSettings:
     """Test suite for Pydantic settings configuration."""
@@ -25,7 +26,7 @@ class TestSettings:
     def test_missing_api_key_raises_validation_error(self):
         """API_KEY is required and should fail validation if missing."""
         with pytest.raises(ValidationError) as exc_info:
-            Settings()
+            Settings(_env_file=None)  # Disable .env loading for this test
 
         errors = exc_info.value.errors()
         assert any("api_key" in e["loc"] for e in errors)
