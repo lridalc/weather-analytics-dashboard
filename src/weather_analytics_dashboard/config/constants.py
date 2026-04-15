@@ -1,6 +1,6 @@
 """Default configuration constants for Weather Analytics Dashboard."""
 
-from typing import Literal, TypeAlias
+from typing import Literal
 
 # =============================================================================
 # CACHING DEFAULTS
@@ -27,8 +27,9 @@ DEFAULT_RATE_LIMIT_REQUESTS = 55  # Safety margin for OpenWeatherMap free tier (
 # OBSERVABILITY DEFAULTS
 # =============================================================================
 
-Environment: TypeAlias = Literal["dev", "test", "prod"]
-LogLevel: TypeAlias = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+type Environment = Literal["dev", "test", "prod"]
+type LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 
 DEFAULT_ENVIRONMENT: Environment = "dev"
 DEFAULT_LOG_LEVEL: LogLevel = "INFO"
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

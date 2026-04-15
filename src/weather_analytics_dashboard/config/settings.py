@@ -1,19 +1,22 @@
 """Application settings configuration using Pydantic Settings."""
 
-from typing import Literal
+import logging
+import sys
 
-from pydantic import Field, field_validator
+from anyio.functools import lru_cache
+from pydantic import Field, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from weather_analytics_dashboard.config.constants import (
     DEFAULT_CACHE_MAX_SIZE,
     DEFAULT_CACHE_TTL_GEOCODING,
     DEFAULT_CACHE_TTL_WEATHER,
+    DEFAULT_ENVIRONMENT,
+    DEFAULT_LOG_LEVEL,
     DEFAULT_RATE_LIMIT_REQUESTS,
     DEFAULT_RETRY_MAX_ATTEMPTS,
     DEFAULT_RETRY_WAIT_SECONDS,
-    DEFAULT_ENVIRONMENT,
-    DEFAULT_LOG_LEVEL,
+    LOG_FORMAT,
     Environment,
     LogLevel,
 )
@@ -39,7 +42,6 @@ class Settings(BaseSettings):
 
     api_key: str = Field(
         ...,
-        min_length=1,
         description="OpenWeatherMap API key (required)",
     )
 
@@ -116,3 +118,44 @@ class Settings(BaseSettings):
         if not v or not v.strip():
             raise ValueError("API_KEY cannot be empty or whitespace only")
         return v.strip()
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    """Get cached settings instance.
+
+    Returns:
+        Settings: Cached application settings.
+
+    Raises:
+        ValidationError: If required settings are missing or invalid.
+    """
+    try:
+        return Settings()
+    except ValidationError as e:
+        # Configure minimal logging for fatal configuration errors
+        logging.basicConfig(
+            level=DEFAULT_LOG_LEVEL,
+            format=LOG_FORMAT,
+            stream=sys.stderr,
+            force=True,
+        )
+
+        logger = logging.getLogger(__name__)
+
+        # Log the fatal error
+        logger.critical("=" * 60)
+        logger.critical("❌ FATAL: Configuration validation failed")
+        logger.critical("=" * 60)
+        logger.critical("Please fix the following errors in your .env file:")
+
+        for error in e.errors():
+            loc = " -> ".join(str(loc) for loc in error["loc"])
+            msg = error["msg"]
+            logger.critical(f"  • {loc}: {msg}")
+
+        logger.critical("=" * 60)
+        logger.critical("💡 Tip: Copy .env.example to .env and add your API key")
+        logger.critical("=" * 60)
+
+        sys.exit(1)
