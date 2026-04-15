@@ -171,6 +171,9 @@ git merge --no-ff docs/pr-template -m "docs: merge PR template into develop"
 ```bash
 git merge --no-ff chore/3-config-settings -m "chore: merge base configuration system with pydantic settings into develop"
 ```
+```bash
+git commit -m "ci: add CI workflows (bootstrap, test suite, code quality)"
+```
 
 ---
 	
