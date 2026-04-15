@@ -13,6 +13,7 @@ from weather_analytics_dashboard.config.constants import (
     Environment,
     LogLevel,
 )
+from weather_analytics_dashboard.config.exceptions import ConfigurationError
 from weather_analytics_dashboard.config.logging import setup_logging
 from weather_analytics_dashboard.config.settings import Settings, get_settings
 
@@ -31,4 +32,5 @@ __all__ = [
     "LOG_FORMAT",
     "Environment",
     "LogLevel",
+    "ConfigurationError",
 ]

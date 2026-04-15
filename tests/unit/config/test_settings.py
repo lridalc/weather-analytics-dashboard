@@ -20,65 +20,6 @@ class TestSettings:
     """Test suite for Pydantic settings configuration."""
 
     # =========================================================================
-    # API_KEY VALIDATION TESTS (Required field)
-    # =========================================================================
-
-    def test_missing_api_key_raises_validation_error(self):
-        """API_KEY is required and should fail validation if missing."""
-        with pytest.raises(ValidationError) as exc_info:
-            Settings(_env_file=None)  # Disable .env loading for this test
-
-        errors = exc_info.value.errors()
-        assert any("api_key" in e["loc"] for e in errors)
-
-    def test_empty_api_key_raises_validation_error(self, monkeypatch):
-        """Empty API_KEY should fail validation."""
-        monkeypatch.setenv("API_KEY", "")
-
-        with pytest.raises(ValidationError) as exc_info:
-            Settings()
-
-        errors = exc_info.value.errors()
-        assert any("api_key" in e["loc"] for e in errors)
-
-    def test_whitespace_only_api_key_is_rejected(self, monkeypatch):
-        """API_KEY with only whitespace should be rejected."""
-        monkeypatch.setenv("API_KEY", "   ")
-
-        with pytest.raises(ValidationError) as exc_info:
-            Settings()
-
-        errors = exc_info.value.errors()
-        assert any("api_key" in e["loc"] for e in errors)
-
-    def test_api_key_with_surrounding_whitespace_is_trimmed(self, monkeypatch):
-        """API_KEY with leading/trailing whitespace should be trimmed."""
-        monkeypatch.setenv("API_KEY", "  abc123  ")
-
-        settings = Settings()
-        assert settings.api_key == "abc123"
-
-    # =========================================================================
-    # DEFAULT VALUES TESTS
-    # =========================================================================
-
-    def test_minimal_configuration_loads_with_defaults(self, monkeypatch):
-        """When only API_KEY is provided, all optional fields use defaults."""
-        monkeypatch.setenv("API_KEY", "test-api-key-123")
-
-        settings = Settings()
-
-        assert settings.api_key == "test-api-key-123"
-        assert settings.cache_ttl_weather == DEFAULT_CACHE_TTL_WEATHER
-        assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
-        assert settings.cache_max_size == DEFAULT_CACHE_MAX_SIZE
-        assert settings.retry_max_attempts == DEFAULT_RETRY_MAX_ATTEMPTS
-        assert settings.retry_wait_seconds == DEFAULT_RETRY_WAIT_SECONDS
-        assert settings.rate_limit_requests == DEFAULT_RATE_LIMIT_REQUESTS
-        assert settings.environment == DEFAULT_ENVIRONMENT
-        assert settings.log_level == DEFAULT_LOG_LEVEL
-
-    # =========================================================================
     # ENVIRONMENT VARIABLE OVERRIDE TESTS
     # =========================================================================
 
@@ -124,21 +65,94 @@ class TestSettings:
         assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
 
     # =========================================================================
+    # API_KEY VALIDATION TESTS (Required field)
+    # =========================================================================
+
+    def test_missing_api_key_raises_validation_error(self, isolated_settings):
+        """API_KEY is required and should fail validation if missing."""
+        with pytest.raises(ValidationError) as exc_info:
+            isolated_settings()
+
+        errors = exc_info.value.errors()
+        assert any("api_key" in e["loc"] for e in errors)
+
+    def test_empty_api_key_raises_validation_error(self, monkeypatch):
+        """Empty API_KEY should fail validation."""
+        monkeypatch.setenv("API_KEY", "")
+
+        with pytest.raises(ValidationError) as exc_info:
+            Settings()
+
+        errors = exc_info.value.errors()
+        assert any("api_key" in e["loc"] for e in errors)
+
+    def test_whitespace_only_api_key_is_rejected(self, monkeypatch):
+        """API_KEY with only whitespace should be rejected."""
+        monkeypatch.setenv("API_KEY", "   ")
+
+        with pytest.raises(ValidationError) as exc_info:
+            Settings()
+
+        errors = exc_info.value.errors()
+        assert any("api_key" in e["loc"] for e in errors)
+
+    def test_api_key_with_surrounding_whitespace_is_trimmed(self, monkeypatch):
+        """API_KEY with leading/trailing whitespace should be trimmed."""
+        monkeypatch.setenv("API_KEY", "  abc123  ")
+
+        settings = Settings()
+        assert settings.api_key == "abc123"
+
+    # =========================================================================
+    # DEFAULT VALUES TESTS
+    # =========================================================================
+
+    @pytest.mark.no_test_environment
+    def test_minimal_configuration_loads_with_defaults(self, monkeypatch):
+        """When only API_KEY is provided, all optional fields use defaults."""
+        monkeypatch.setenv("API_KEY", "test-api-key-123")
+        monkeypatch.delenv("ENVIRONMENT", False)
+
+        settings = Settings()
+
+        assert settings.api_key == "test-api-key-123"
+        assert settings.cache_ttl_weather == DEFAULT_CACHE_TTL_WEATHER
+        assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
+        assert settings.cache_max_size == DEFAULT_CACHE_MAX_SIZE
+        assert settings.retry_max_attempts == DEFAULT_RETRY_MAX_ATTEMPTS
+        assert settings.retry_wait_seconds == DEFAULT_RETRY_WAIT_SECONDS
+        assert settings.rate_limit_requests == DEFAULT_RATE_LIMIT_REQUESTS
+        assert settings.environment == DEFAULT_ENVIRONMENT
+        assert settings.log_level == DEFAULT_LOG_LEVEL
+
+    # =========================================================================
     # TYPE VALIDATION AND COERCION TESTS
     # =========================================================================
 
     def test_string_numeric_values_are_coerced_to_int(self, monkeypatch):
         """Pydantic should coerce string numbers to int."""
         monkeypatch.setenv("API_KEY", "test-key")
-        monkeypatch.setenv("CACHE_TTL_WEATHER", "60")
-        monkeypatch.setenv("RETRY_MAX_ATTEMPTS", "5")
+        monkeypatch.setenv("CACHE_TTL_WEATHER", "500")
+        monkeypatch.setenv("CACHE_TTL_GEOCODING", "63542")
+        monkeypatch.setenv("CACHE_MAX_SIZE", "200")
+        monkeypatch.setenv("RETRY_MAX_ATTEMPTS", "10")
+        monkeypatch.setenv("RETRY_WAIT_SECONDS", "3")
+        monkeypatch.setenv("RATE_LIMIT_REQUESTS", "70")
 
         settings = Settings()
 
         assert isinstance(settings.cache_ttl_weather, int)
+        assert isinstance(settings.cache_ttl_geocoding, int)
+        assert isinstance(settings.cache_max_size, int)
         assert isinstance(settings.retry_max_attempts, int)
-        assert settings.cache_ttl_weather == 60
-        assert settings.retry_max_attempts == 5
+        assert isinstance(settings.retry_wait_seconds, int)
+        assert isinstance(settings.rate_limit_requests, int)
+        assert settings.cache_ttl_weather == 500
+        assert settings.cache_ttl_geocoding == 63542
+        assert settings.cache_max_size == 200
+        assert settings.retry_max_attempts == 10
+        assert settings.retry_wait_seconds == 3
+        assert settings.rate_limit_requests == 70
 
     @pytest.mark.parametrize(
         ("field_name", "invalid_value"),

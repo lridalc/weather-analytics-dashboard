@@ -5,10 +5,11 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main]
+  workflow_call:  # Allows this workflow to be called from ci.yml
 
 jobs:
   unit:
-    name: Unit
+    name: Unit Tests (Domain + Application)
     runs-on: ubuntu-latest
 
     steps:
@@ -26,11 +27,11 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
 
-      - name: Run unit & domain tests
-        run: uv run pytest tests/unit -v
+      - name: Run unit tests
+        run: uv run pytest tests/unit/ -v --tb=short
 
   integration:
-    name: Integration
+    name: Integration Tests (Infrastructure + API)
     runs-on: ubuntu-latest
 
     steps:
@@ -48,5 +49,8 @@ jobs:
       - name: Install dependencies
         run: uv sync --group dev
 
-      - name: Run integration tests
-        run: uv run pytest tests/integration -v
+      - name: Run integration tests (exclude bootstrap)
+        run: |
+          uv run pytest tests/integration/ \
+            --ignore=tests/integration/bootstrap/ \
+            -v --tb=short

@@ -70,6 +70,13 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 
+# =============================================================================
+# CUSTOM MARKERS
+# =============================================================================
+markers = [
+    "no_test_environment: Test that should run without ENVIRONMENT=test override",
+]
+
 [tool.mypy]
 python_version = "3.12"
 ignore_missing_imports = false

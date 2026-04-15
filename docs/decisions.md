@@ -899,8 +899,18 @@ Adopt a **layered testing strategy** strictly aligned with the system architectu
 
 #### 5. Smoke Tests (CI Gate)
 
-- Validate application bootstrapping (Dependency Injection wiring)
-- Ensure `uv run weather --help` and `GET /` return successfully without crashing
+- **Type:** Entrypoint Verification
+- **Location:** `tests/integration/test_00_smoke.py`
+- **Purpose:** Fast CI gate to catch catastrophic failures before running full suite
+- **Validates:**
+  - CLI entrypoint can be invoked without import or wiring errors (`uv run weather --help`)
+  - FastAPI app can be created with complete dependency graph
+  - Root endpoint (`GET /`) responds successfully
+  - OpenAPI documentation is accessible (`/docs`, `/openapi.json`)
+
+**Important:** Smoke tests are intentionally minimal and do **NOT** grow with new features. They verify only that the application can start, not that business logic works correctly.
+
+The `00_` prefix ensures smoke tests execute first when pytest runs files in alphabetical order.
 
 ### Testing Principles
 

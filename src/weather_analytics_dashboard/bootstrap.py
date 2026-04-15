@@ -43,11 +43,11 @@ def bootstrap(settings: Settings | None = None) -> AppContainer:
         AppContainer: Fully constructed dependency container.
 
     Raises:
-        SystemExit: If configuration validation fails (handled in get_settings).
+        ConfigurationError: If configuration validation fails (via get_settings).
     """
-    # 1. Load configuration (fails fast if invalid)
+    # 1. Load configuration
     if settings is None:
-        settings = get_settings()
+        settings = get_settings()  # Cached settings
 
     # 2. Configure logging (idempotent - safe to call multiple times)
     setup_logging(settings)

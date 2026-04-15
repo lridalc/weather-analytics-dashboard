@@ -20,6 +20,7 @@ from weather_analytics_dashboard.config.constants import (
     Environment,
     LogLevel,
 )
+from weather_analytics_dashboard.config.exceptions import ConfigurationError
 
 
 class Settings(BaseSettings):
@@ -42,7 +43,7 @@ class Settings(BaseSettings):
 
     api_key: str = Field(
         ...,
-        description="OpenWeatherMap API key (required)",
+        description="API key (required)",
     )
 
     # =========================================================================
@@ -131,19 +132,19 @@ def get_settings() -> Settings:
     Raises:
         ValidationError: If required settings are missing or invalid.
     """
+    # Configure minimal logging for fatal configuration errors
+    logging.basicConfig(
+        level=logging.CRITICAL,
+        format=LOG_FORMAT,
+        stream=sys.stderr,
+        force=True,
+    )
+
+    logger = logging.getLogger(__name__)
+
     try:
         return Settings()  # type: ignore[call-arg]
     except ValidationError as e:
-        # Configure minimal logging for fatal configuration errors
-        logging.basicConfig(
-            level=DEFAULT_LOG_LEVEL,
-            format=LOG_FORMAT,
-            stream=sys.stderr,
-            force=True,
-        )
-
-        logger = logging.getLogger(__name__)
-
         # Log the fatal error
         logger.critical("=" * 60)
         logger.critical("❌ FATAL: Configuration validation failed")
@@ -151,7 +152,7 @@ def get_settings() -> Settings:
         logger.critical("Please fix the following errors in your .env file:")
 
         for error in e.errors():
-            loc = " -> ".join(str(loc) for loc in error["loc"])
+            loc = " -> ".join(str(loc).upper() for loc in error["loc"])
             msg = error["msg"]
             logger.critical(f"  • {loc}: {msg}")
 
@@ -159,4 +160,4 @@ def get_settings() -> Settings:
         logger.critical("💡 Tip: Copy .env.example to .env and add your API key")
         logger.critical("=" * 60)
 
-        sys.exit(1)
+        raise ConfigurationError() from e

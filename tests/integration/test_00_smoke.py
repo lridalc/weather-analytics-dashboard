@@ -1,4 +1,11 @@
-"""Integration tests to verify application bootstrapping and wiring."""
+"""
+Smoke tests to verify application entrypoints work without crashing.
+
+These tests ONLY verify that the application can be imported and started.
+They do NOT test business logic, endpoints, or external integrations.
+
+This file should remain minimal - only what's needed for fast CI gate.
+"""
 
 
 def test_cli_entrypoint_help(cli_runner):

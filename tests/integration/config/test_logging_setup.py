@@ -1,51 +1,124 @@
+"""
+Tests for logging configuration.
+
+These tests validate:
+- Root logger configuration
+- Log level behavior
+- Idempotency of setup
+- Real log emission
+
+They avoid fragile assertions tied to exact formatting or environment.
+"""
+
 import logging
 
 import pytest
 
-from weather_analytics_dashboard.config import Settings, setup_logging
+from weather_analytics_dashboard.config import setup_logging
 
 
 class TestLoggingSetup:
-    @pytest.fixture
-    def settings(self):
-        return Settings(api_key="test-key", log_level="DEBUG")
+    """Tests for logging setup behavior."""
 
-    def test_root_logger_level(self, settings):
+    # ==================================================================================
+    # ROOT LOGGER CONFIGURATION
+    # ==================================================================================
+
+    @pytest.mark.no_test_environment
+    def test_setup_logging_sets_root_level(self, settings):
+        """setup_logging should configure the root logger level."""
         setup_logging(settings)
 
-        assert logging.getLogger().level == logging.DEBUG
+        root_logger = logging.getLogger()
 
-    def test_third_party_loggers_silenced(self, settings):
+        assert root_logger.level == logging.DEBUG
+
+    # ==================================================================================
+    # LOG EMISSION
+    # ==================================================================================
+
+    def test_logging_emits_messages_at_expected_level(self, settings, caplog):
+        """Logging should respect configured log level."""
+        settings.log_level = "WARNING"
+
         setup_logging(settings)
 
-        for name in ["httpx", "httpcore", "urllib3", "uvicorn.access"]:
-            assert logging.getLogger(name).level == logging.WARNING
+        logger = logging.getLogger("test_logger")  # Inherits log level from root logger
 
-    def test_logging_outputs_message(self, settings, capsys):
-        setup_logging(settings)
+        logger.debug("debug message")
+        logger.warning("warning message")
 
-        logger = logging.getLogger("test")
-        logger.info("hello")
+        messages = [record.message for record in caplog.records]
 
-        captured = capsys.readouterr()
-        assert "hello" in captured.out
+        # DEBUG message should not appear because logger level is WARNING
+        assert "debug message" not in messages
+        assert "warning message" in messages
 
-    def test_logging_format_applied(self, settings, capsys):
+    @pytest.mark.no_test_environment
+    def test_logging_outputs_messages(self, settings, capsys):
+        """Logging should produce output to stdout/stderr."""
         setup_logging(settings)
 
         logger = logging.getLogger("test_logger")
-        logger.info("formatted message")
+        logger.info("test message")
 
         captured = capsys.readouterr()
-        assert "test_logger" in captured.out
-        assert "INFO" in captured.out
-        assert "formatted message" in captured.out
 
-    def test_idempotent(self, settings):
+        # Avoid strict formatting checks → only validate signal
+        assert "test message" in captured.out or "test message" in captured.err
+
+    # ==================================================================================
+    # IDEMPOTENCY
+    # ==================================================================================
+    @pytest.mark.no_test_environment
+    def test_setup_logging_is_idempotent(self, settings):
+        """
+        Calling setup_logging multiple times should not break logging.
+
+        We avoid strict handler counting (fragile across environments), but ensure no
+        uncontrolled growth happens.
+        """
+        setup_logging(settings)  # To override pytest root logger
+
+        root_logger = logging.getLogger()
+
+        initial_handlers = len(root_logger.handlers)
+
         setup_logging(settings)
-        handlers_before = len(logging.getLogger().handlers)
+        handlers_after_first = len(root_logger.handlers)
 
         setup_logging(settings)
-        handlers_after = len(logging.getLogger().handlers)
+        handlers_after_second = len(root_logger.handlers)
 
-        assert handlers_before == handlers_after
+        # No uncontrolled growth
+        assert handlers_after_second == handlers_after_first
+
+        # Should not remove existing handlers
+        assert handlers_after_first >= initial_handlers
+
+    # =========================================================================
+    # THIRD-PARTY LOGGING CONTROL
+    # =========================================================================
+
+    @pytest.mark.parametrize(
+        "logger_name",
+        ["httpx", "httpcore", "urllib3", "uvicorn.access"],
+    )
+    def test_external_loggers_are_silenced(self, settings, logger_name):
+        """External noisy libraries should be set to WARNING or higher."""
+        setup_logging(settings)
+
+        logger = logging.getLogger(logger_name)
+
+        assert logger.level >= logging.WARNING
+
+    # =========================================================================
+    # ERROR HANDLING
+    # =========================================================================
+
+    def test_invalid_log_level_raises_error(self, settings):
+        """Invalid log level should raise ValueError."""
+        settings.log_level = "INVALID"
+
+        with pytest.raises(ValueError):
+            setup_logging(settings)

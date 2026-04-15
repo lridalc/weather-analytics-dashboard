@@ -3,12 +3,13 @@
 import pytest
 from pydantic import ValidationError
 
-from weather_analytics_dashboard.config import get_settings
+from weather_analytics_dashboard.config import ConfigurationError, get_settings
 
 
 class TestSettingsLoading:
     """Integration tests for settings loading mechanisms."""
 
+    @pytest.mark.no_test_environment
     def test_settings_loads_from_dotenv_file(self, isolated_settings, tmp_path):
         """Settings should load from a .env file when present."""
         # Create a real .env file in the isolated directory
@@ -92,8 +93,10 @@ API_KEY=
         errors = exc_info.value.errors()
         assert any("api_key" in e["loc"] for e in errors)
 
-    def test_get_settings_exits_on_validation_error(self, tmp_path, monkeypatch):
-        """get_settings should fail fast and exis when configuration is invalid."""
+    def test_get_settings_raises_configuration_error_on_validation_failure(
+        self, tmp_path, monkeypatch
+    ):
+        """get_settings should raise ConfigurationError when validation fails."""
         env_file = tmp_path / ".env"
         env_file.write_text("API_KEY=")
 
@@ -101,12 +104,16 @@ API_KEY=
 
         get_settings.cache_clear()
 
-        with pytest.raises(SystemExit) as exc_info:
+        with pytest.raises(ConfigurationError) as exc_info:
             get_settings()
 
-        assert exc_info.value.code == 1
+        assert exc_info.value.__cause__ is not None
+        assert isinstance(exc_info.value.__cause__, ValidationError)
 
-    def test_get_settings_logs_error(self, tmp_path, monkeypatch, capsys):
+    def test_get_settings_logs_error_on_validation_failure(
+        self, tmp_path, monkeypatch, capsys
+    ):
+        """get_settings should log error details when validation fails."""
         env_file = tmp_path / ".env"
         env_file.write_text("API_KEY=")
 
@@ -114,8 +121,9 @@ API_KEY=
 
         get_settings.cache_clear()
 
-        with pytest.raises(SystemExit):
+        with pytest.raises(ConfigurationError):
             get_settings()
 
         captured = capsys.readouterr()
         assert "Configuration validation failed" in captured.err
+        assert "API_KEY" in captured.err
