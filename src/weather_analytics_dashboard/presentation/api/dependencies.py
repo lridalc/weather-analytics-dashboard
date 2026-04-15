@@ -1,7 +1,7 @@
 """FastAPI dependency injection adapters."""
 
 from functools import lru_cache
-from typing import Annotated
+from typing import Annotated, cast
 
 from fastapi import Depends, Request
 
@@ -24,7 +24,7 @@ def get_container_from_state(request: Request) -> AppContainer:
 
     Preferred method when using lifespan-based initialization.
     """
-    return request.app.state.container
+    return cast(AppContainer, request.app.state.container)
 
 
 def get_settings_from_state(request: Request) -> Settings:

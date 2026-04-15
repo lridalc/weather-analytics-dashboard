@@ -80,7 +80,8 @@ class Settings(BaseSettings):
     retry_wait_seconds: int = Field(
         default=DEFAULT_RETRY_WAIT_SECONDS,
         ge=0,
-        description="Initial wait time between retries in seconds (exponential backoff, 0 for no delay)",
+        description="Initial wait time between retries in seconds (exponential backoff,"
+        "0 for no delay)",
     )
 
     # =========================================================================
@@ -131,7 +132,7 @@ def get_settings() -> Settings:
         ValidationError: If required settings are missing or invalid.
     """
     try:
-        return Settings()
+        return Settings()  # type: ignore[call-arg]
     except ValidationError as e:
         # Configure minimal logging for fatal configuration errors
         logging.basicConfig(
