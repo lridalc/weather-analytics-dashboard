@@ -20,6 +20,23 @@ run:
 cli:
 	uv run weather
 
+
+# Run smoke tests with verbose output
+test-smoke:
+	uv run pytest tests/integration/test_00_smoke.py -v
+
+# Run bootstrap tests with verbose output
+test-bootstrap:
+	uv run pytest tests/integration/bootstrap -v
+
+# Run unit tests with verbose output
+test-unit:
+	uv run pytest tests/unit -v
+
+# Run integration tests (ignore bootstrap tests) with verbose output
+test-integration:
+	uv run pytest tests/integration --ignore=tests/integration/bootstrap -v
+
 # Run all tests with verbose output
 test:
 	uv run pytest -v
@@ -52,14 +69,19 @@ clean:
 
 help:
 	@echo "Available commands:"
-	@echo "  make install      - Install dependencies in the virtual environment"
-	@echo "  make install-dev  - Install dependencies including development tools"
-	@echo "  make dev          - Run API server with hot reload"
-	@echo "  make run          - Run API server without hot reload (production)"
-	@echo "  make test         - Run all tests"
-	@echo "  make lint         - Run ruff linter"
-	@echo "  make format       - Run ruff formatter"
-	@echo "  make format-check - Run ruff formatter in check mode"
-	@echo "  make type-check   - Run mypy type checking"
-	@echo "  make check        - Run lint + format check + tests + type check"
-	@echo "  make clean        - Remove cache files"
+	@echo "  make install          	 - Install dependencies in the virtual environment"
+	@echo "  make install-dev      	 - Install dependencies including development tools"
+	@echo "  make dev              	 - Run API server with hot reload"
+	@echo "  make run              	 - Run API server without hot reload (production)"
+	@echo "  make cli              	 - Run the CLI tool"
+	@echo "  make test-smoke       	 - Run smoke tests with verbose output"
+	@echo "  make test-bootstrap   	 - Run bootstrap tests with verbose output"
+	@echo "  make test-unit        	 - Run unit tests with verbose output"
+	@echo "  make test-integration 	 - Run integration tests (ignore bootstrap) with verbose output"
+	@echo "  make test         		 - Run all tests"
+	@echo "  make lint         		 - Run ruff linter"
+	@echo "  make format       		 - Run ruff formatter"
+	@echo "  make format-check 		 - Run ruff formatter in check mode"
+	@echo "  make type-check   		 - Run mypy type checking"
+	@echo "  make check        		 - Run lint + format check + tests + type check"
+	@echo "  make clean        		 - Remove cache files"
