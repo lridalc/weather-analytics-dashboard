@@ -38,7 +38,7 @@ def cli_runner():
 
 
 @pytest.fixture(autouse=True)
-def clear_env(monkeypatch):
+def clear_env(request, monkeypatch):
     """
     Clear all Weather Analytics Dashboard environment variables before each test.
 
@@ -61,7 +61,28 @@ def clear_env(monkeypatch):
     for var in env_vars:
         monkeypatch.delenv(var, raising=False)
 
+    if not request.node.get_closest_marker("no_test_environment"):
+        # Ensure all tests run with ENVIRONMENT=test.
+        # This prevents accidental use of dev/prod settings in tests.
+        monkeypatch.setenv("ENVIRONMENT", "test")
+
     # Return control to test with clean environment
+    yield
+
+
+@pytest.fixture(autouse=True)
+def reset_settings_cache():
+    """
+    Reset the get_settings() LRU cache before each test.
+
+    This runs automatically to ensure that cached settings don't persist between tests,
+    which would cause test isolation issues.
+    """
+    # Clean the LRU cache
+    from weather_analytics_dashboard.config import get_settings
+
+    get_settings.cache_clear()
+
     yield
 
 
@@ -85,17 +106,12 @@ def isolated_settings(tmp_path, monkeypatch):
     return Settings
 
 
-@pytest.fixture(autouse=True)
-def reset_settings_cache():
+@pytest.fixture
+def settings(request, isolated_settings):
     """
-    Reset the get_settings() LRU cache before each test.
-
-    This runs automatically to ensure that cached settings don't persist between tests,
-    which would cause test isolation issues.
+    Provide test settings.
     """
-    # Clean the LRU cache
-    from weather_analytics_dashboard.config import get_settings
-
-    get_settings.cache_clear()
-
-    yield
+    return isolated_settings(
+        api_key="test-key",
+        log_level="DEBUG",
+    )
