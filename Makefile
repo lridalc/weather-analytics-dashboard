@@ -1,4 +1,4 @@
-.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit check clean release
+.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit pre-commit-force pre-commit-all pre-commit-run pre-commit-update pre-commit-uninstall check clean version release release-push
 
 # ============================================================================
 # VARIABLES
@@ -124,6 +124,41 @@ pre-commit:
 	$(UV_RUN) pre-commit install
 	@echo "$(GREEN)✅ Pre-commit hooks installed!$(NC)"
 
+# Install pre-commit hooks with overwrite (useful when updating)
+pre-commit-force:
+	@echo "$(YELLOW)🔧 Force installing pre-commit hooks...$(NC)"
+	$(UV_RUN) pre-commit install --force
+	@echo "$(GREEN)✅ Pre-commit hooks force installed!$(NC)"
+
+# Run pre-commit on all files (useful for initial setup or CI debugging)
+pre-commit-all:
+	@echo "$(YELLOW)🔍 Running pre-commit on all files...$(NC)"
+	$(UV_RUN) pre-commit run --all-files
+	@echo "$(GREEN)✅ Pre-commit checks passed on all files!$(NC)"
+
+# Run a specific hook (example: make pre-commit-run HOOK=ruff)
+HOOK ?=
+pre-commit-run:
+	@if [ -z "$(HOOK)" ]; then \
+		echo "$(RED)❌ Please specify HOOK=hook-id$(NC)"; \
+		echo "$(YELLOW)Example: make pre-commit-run HOOK=ruff$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)🔍 Running hook: $(HOOK)...$(NC)"
+	$(UV_RUN) pre-commit run $(HOOK) --all-files
+
+# Update pre-commit hooks to latest versions
+pre-commit-update:
+	@echo "$(YELLOW)🔄 Updating pre-commit hooks to latest versions...$(NC)"
+	$(UV_RUN) pre-commit autoupdate
+	@echo "$(GREEN)✅ Hooks updated! Review changes with: git diff .pre-commit-config.yaml$(NC)"
+
+# Uninstall pre-commit hooks
+pre-commit-uninstall:
+	@echo "$(YELLOW)🗑️  Uninstalling pre-commit hooks...$(NC)"
+	$(UV_RUN) pre-commit uninstall
+	@echo "$(GREEN)✅ Pre-commit hooks uninstalled!$(NC)"
+
 # ============================================================================
 # COMPLETE CHECKING
 # ============================================================================
@@ -237,14 +272,19 @@ help:
 	@echo "  make type-check        - Run mypy type checking"
 	@echo ""
 	@echo "$(GREEN)Git Hooks:$(NC)"
-	@echo "  make pre-commit        - Install pre-commit hooks"
+	@echo "  make pre-commit         		- Install pre-commit hooks"
+	@echo "  make pre-commit-force  		- Force reinstall pre-commit hooks"
+	@echo "  make pre-commit-all     		- Run all hooks on all files"
+	@echo "  make pre-commit-run HOOK=ruff  - Run specific hook"
+	@echo "  make pre-commit-update  		- Update hooks to latest versions"
+	@echo "  make pre-commit-uninstall 		- Uninstall pre-commit hooks"
 	@echo ""
 	@echo "$(GREEN)Utilities:$(NC)"
 	@echo "  make check             - Run all checks (lint + format + test + type)"
 	@echo "  make clean             - Remove cache and temporary files"
 	@echo "$(GREEN)Release:$(NC)"
-	@echo "  make release [VERSION=X.Y.Z] - Prepare a new release"
-	@echo "  make release-push            - Push release to remote"
-	@echo "  make version                 - Show current version"
-	@echo "  make help              - Show this help message"
+	@echo "  make release [VERSION=X.Y.Z]	- Prepare a new release"
+	@echo "  make release-push            	- Push release to remote"
+	@echo "  make version                 	- Show current version"
+	@echo "  make help              		- Show this help message"
 	@echo ""
