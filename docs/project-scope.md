@@ -114,7 +114,7 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 | Variable              | Description               | Default  |
 | --------------------- | ------------------------- | -------- |
-| `API_KEY`             | Weather API key           | Required |
+| `WEATHER_API_KEY`             | Weather API key           | Required |
 | `CACHE_TTL_WEATHER`   | Weather TTL (seconds)     | 300      |
 | `CACHE_TTL_GEOCODING` | Geocoding TTL (seconds)   | 604800   |
 | `CACHE_MAX_SIZE`      | Max cache entries         | 100      |

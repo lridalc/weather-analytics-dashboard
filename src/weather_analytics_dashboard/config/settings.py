@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     # API KEY (REQUIRED)
     # =========================================================================
 
-    api_key: str = Field(
+    weather_api_key: str = Field(
         ...,
         description="API key (required)",
     )
@@ -113,12 +113,12 @@ class Settings(BaseSettings):
     # VALIDATORS
     # =========================================================================
 
-    @field_validator("api_key")
+    @field_validator("weather_api_key")
     @classmethod
     def validate_api_key(cls, v: str) -> str:
         """Validate that API key is not empty or whitespace only."""
         if not v or not v.strip():
-            raise ValueError("API_KEY cannot be empty or whitespace only")
+            raise ValueError("WEATHER_API_KEY cannot be empty or whitespace only")
         return v.strip()
 
 

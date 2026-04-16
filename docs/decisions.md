@@ -701,7 +701,7 @@ Accepted
 
 ### Context
 
-The application requires structured configuration for API keys, cache settings, and retry parameters. To maintain a clean abstraction over infrastructure, the configuration layer uses generic variable names (e.g., `API_KEY` rather than `OPENWEATHER_API_KEY`). Database connections are not exposed for configuration as the v1.0 deployment relies on a fixed local SQLite file.
+The application requires structured configuration for API keys, cache settings, and retry parameters. To maintain a clean abstraction over infrastructure, the configuration layer uses generic variable names (e.g., `WEATHER_API_KEY` rather than `OPENWEATHER_API_KEY`). Database connections are not exposed for configuration as the v1.0 deployment relies on a fixed local SQLite file.
 
 ### Decision
 

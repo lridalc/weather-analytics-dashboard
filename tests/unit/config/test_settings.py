@@ -25,7 +25,7 @@ class TestSettings:
 
     def test_all_settings_can_be_overridden(self, monkeypatch):
         """All settings should be configurable via environment variables."""
-        monkeypatch.setenv("API_KEY", "custom-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "custom-key")
         monkeypatch.setenv("CACHE_TTL_WEATHER", "60")
         monkeypatch.setenv("CACHE_TTL_GEOCODING", "86400")
         monkeypatch.setenv("CACHE_MAX_SIZE", "50")
@@ -37,7 +37,7 @@ class TestSettings:
 
         settings = Settings()
 
-        assert settings.api_key == "custom-key"
+        assert settings.weather_api_key == "custom-key"
         assert settings.cache_ttl_weather == 60
         assert settings.cache_ttl_geocoding == 86400
         assert settings.cache_max_size == 50
@@ -49,59 +49,59 @@ class TestSettings:
 
     def test_kwargs_override_environment_variables(self, monkeypatch):
         """Direct kwargs should take precedence over environment variables."""
-        monkeypatch.setenv("API_KEY", "env-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "env-key")
         monkeypatch.setenv("CACHE_TTL_WEATHER", "100")
         monkeypatch.setenv("ENVIRONMENT", "prod")
 
         settings = Settings(
-            api_key="kwarg-key",
+            weather_api_key="kwarg-key",
             cache_ttl_weather=999,
             environment="test",
         )
 
-        assert settings.api_key == "kwarg-key"
+        assert settings.weather_api_key == "kwarg-key"
         assert settings.cache_ttl_weather == 999
         assert settings.environment == "test"
         assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
 
     # =========================================================================
-    # API_KEY VALIDATION TESTS (Required field)
+    # WEATHER_API_KEY VALIDATION TESTS (Required field)
     # =========================================================================
 
     def test_missing_api_key_raises_validation_error(self, isolated_settings):
-        """API_KEY is required and should fail validation if missing."""
+        """WEATHER_API_KEY is required and should fail validation if missing."""
         with pytest.raises(ValidationError) as exc_info:
             isolated_settings()
 
         errors = exc_info.value.errors()
-        assert any("api_key" in e["loc"] for e in errors)
+        assert any("weather_api_key" in e["loc"] for e in errors)
 
     def test_empty_api_key_raises_validation_error(self, monkeypatch):
-        """Empty API_KEY should fail validation."""
-        monkeypatch.setenv("API_KEY", "")
+        """Empty WEATHER_API_KEY should fail validation."""
+        monkeypatch.setenv("WEATHER_API_KEY", "")
 
         with pytest.raises(ValidationError) as exc_info:
             Settings()
 
         errors = exc_info.value.errors()
-        assert any("api_key" in e["loc"] for e in errors)
+        assert any("weather_api_key" in e["loc"] for e in errors)
 
     def test_whitespace_only_api_key_is_rejected(self, monkeypatch):
-        """API_KEY with only whitespace should be rejected."""
-        monkeypatch.setenv("API_KEY", "   ")
+        """WEATHER_API_KEY with only whitespace should be rejected."""
+        monkeypatch.setenv("WEATHER_API_KEY", "   ")
 
         with pytest.raises(ValidationError) as exc_info:
             Settings()
 
         errors = exc_info.value.errors()
-        assert any("api_key" in e["loc"] for e in errors)
+        assert any("weather_api_key" in e["loc"] for e in errors)
 
     def test_api_key_with_surrounding_whitespace_is_trimmed(self, monkeypatch):
-        """API_KEY with leading/trailing whitespace should be trimmed."""
-        monkeypatch.setenv("API_KEY", "  abc123  ")
+        """WEATHER_API_KEY with leading/trailing whitespace should be trimmed."""
+        monkeypatch.setenv("WEATHER_API_KEY", "  abc123  ")
 
         settings = Settings()
-        assert settings.api_key == "abc123"
+        assert settings.weather_api_key == "abc123"
 
     # =========================================================================
     # DEFAULT VALUES TESTS
@@ -109,13 +109,13 @@ class TestSettings:
 
     @pytest.mark.no_test_environment
     def test_minimal_configuration_loads_with_defaults(self, monkeypatch):
-        """When only API_KEY is provided, all optional fields use defaults."""
-        monkeypatch.setenv("API_KEY", "test-api-key-123")
+        """When only WEATHER_API_KEY is provided, all optional fields use defaults."""
+        monkeypatch.setenv("WEATHER_API_KEY", "test-api-key-123")
         monkeypatch.delenv("ENVIRONMENT", False)
 
         settings = Settings()
 
-        assert settings.api_key == "test-api-key-123"
+        assert settings.weather_api_key == "test-api-key-123"
         assert settings.cache_ttl_weather == DEFAULT_CACHE_TTL_WEATHER
         assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
         assert settings.cache_max_size == DEFAULT_CACHE_MAX_SIZE
@@ -131,7 +131,7 @@ class TestSettings:
 
     def test_string_numeric_values_are_coerced_to_int(self, monkeypatch):
         """Pydantic should coerce string numbers to int."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("CACHE_TTL_WEATHER", "500")
         monkeypatch.setenv("CACHE_TTL_GEOCODING", "63542")
         monkeypatch.setenv("CACHE_MAX_SIZE", "200")
@@ -170,7 +170,7 @@ class TestSettings:
         self, field_name, invalid_value, monkeypatch
     ):
         """Non-integer values for numeric fields should fail validation."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv(field_name, invalid_value)
 
         with pytest.raises(ValidationError) as exc_info:
@@ -185,7 +185,7 @@ class TestSettings:
 
     def test_cache_ttl_zero_is_allowed(self, monkeypatch):
         """Zero TTL should be allowed (disables cache)."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("CACHE_TTL_WEATHER", "0")
         monkeypatch.setenv("CACHE_TTL_GEOCODING", "0")
 
@@ -196,7 +196,7 @@ class TestSettings:
 
     def test_retry_max_attempts_zero_is_allowed(self, monkeypatch):
         """Zero retry attempts should be allowed (disables retries)."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("RETRY_MAX_ATTEMPTS", "0")
 
         settings = Settings()
@@ -204,7 +204,7 @@ class TestSettings:
 
     def test_retry_wait_seconds_zero_is_allowed(self, monkeypatch):
         """Zero wait time should be allowed (no delay between retries)."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("RETRY_WAIT_SECONDS", "0")
 
         settings = Settings()
@@ -226,7 +226,7 @@ class TestSettings:
         self, field_name, negative_value, monkeypatch
     ):
         """Negative values should fail validation for constrained fields."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv(field_name, negative_value)
 
         with pytest.raises(ValidationError) as exc_info:
@@ -237,7 +237,7 @@ class TestSettings:
 
     def test_rate_limit_minimum_value_is_one(self, monkeypatch):
         """Rate limit minimum value should be 1."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("RATE_LIMIT_REQUESTS", "1")
 
         settings = Settings()
@@ -252,7 +252,7 @@ class TestSettings:
 
     def test_cache_max_size_minimum_value_is_one(self, monkeypatch):
         """Cache max size minimum value should be 1."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("CACHE_MAX_SIZE", "1")
 
         settings = Settings()
@@ -272,7 +272,7 @@ class TestSettings:
     @pytest.mark.parametrize("valid_env", ["dev", "test", "prod"])
     def test_valid_environments_are_accepted(self, valid_env, monkeypatch):
         """'dev', 'test', and 'prod' should be valid environment values."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("ENVIRONMENT", valid_env)
 
         settings = Settings()
@@ -287,7 +287,7 @@ class TestSettings:
         self, invalid_env, monkeypatch
     ):
         """Only 'dev', 'test', 'prod' are valid environments (case-sensitive)."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("ENVIRONMENT", invalid_env)
 
         with pytest.raises(ValidationError) as exc_info:
@@ -305,7 +305,7 @@ class TestSettings:
     )
     def test_valid_log_levels_are_accepted(self, valid_level, monkeypatch):
         """Standard Python log levels should be valid."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("LOG_LEVEL", valid_level)
 
         settings = Settings()
@@ -320,7 +320,7 @@ class TestSettings:
         self, invalid_level, monkeypatch
     ):
         """Only standard Python log levels are valid (case-sensitive)."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("LOG_LEVEL", invalid_level)
 
         with pytest.raises(ValidationError) as exc_info:
@@ -335,33 +335,33 @@ class TestSettings:
 
     def test_extra_environment_variables_are_ignored(self, monkeypatch):
         """Unknown environment variables should be ignored (extra='ignore')."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
         monkeypatch.setenv("UNKNOWN_VARIABLE", "should-be-ignored")
         monkeypatch.setenv("ANOTHER_UNKNOWN", "also-ignored")
 
         settings = Settings()
-        assert settings.api_key == "test-key"
+        assert settings.weather_api_key == "test-key"
 
     def test_settings_can_be_created_with_kwargs_without_env(self):
         """Settings should be instantiable via kwargs (bypassing environment)."""
         settings = Settings(
-            api_key="direct-kwarg-key",
+            weather_api_key="direct-kwarg-key",
             cache_ttl_weather=999,
             environment="test",
         )
 
-        assert settings.api_key == "direct-kwarg-key"
+        assert settings.weather_api_key == "direct-kwarg-key"
         assert settings.cache_ttl_weather == 999
         assert settings.environment == "test"
         assert settings.cache_ttl_geocoding == DEFAULT_CACHE_TTL_GEOCODING
 
     def test_settings_model_dump_returns_dict(self, monkeypatch):
         """Settings should be serializable to dict."""
-        monkeypatch.setenv("API_KEY", "test-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "test-key")
 
         settings = Settings()
         data = settings.model_dump()
 
         assert isinstance(data, dict)
-        assert data["api_key"] == "test-key"
+        assert data["weather_api_key"] == "test-key"
         assert "cache_ttl_weather" in data

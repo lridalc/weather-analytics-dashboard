@@ -40,19 +40,19 @@ class TestBootstrap:
 
     def test_bootstrap_loads_settings_when_not_provided(self, monkeypatch):
         """bootstrap() should load settings from environment if not provided."""
-        monkeypatch.setenv("API_KEY", "env-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "env-key")
 
         container = bootstrap()
 
-        assert container.settings.api_key == "env-key"
+        assert container.settings.weather_api_key == "env-key"
 
     def test_bootstrap_accepts_none_settings(self, monkeypatch):
         """bootstrap(settings=None) should behave like no settings provided."""
-        monkeypatch.setenv("API_KEY", "none-key")
+        monkeypatch.setenv("WEATHER_API_KEY", "none-key")
 
         container = bootstrap(settings=None)
 
-        assert container.settings.api_key == "none-key"
+        assert container.settings.weather_api_key == "none-key"
 
     def test_bootstrap_returns_new_container_each_call(self, settings):
         """Each bootstrap call should return a new container instance."""
@@ -63,12 +63,12 @@ class TestBootstrap:
 
     def test_bootstrap_does_not_mutate_settings(self, settings):
         """bootstrap() must not modify the provided Settings object."""
-        original_api_key = settings.api_key
+        original_api_key = settings.weather_api_key
         original_log_level = settings.log_level
 
         bootstrap(settings=settings)
 
-        assert settings.api_key == original_api_key
+        assert settings.weather_api_key == original_api_key
         assert settings.log_level == original_log_level
 
     def test_bootstrap_is_deterministic(self, settings):
@@ -76,7 +76,9 @@ class TestBootstrap:
         container1 = bootstrap(settings=settings)
         container2 = bootstrap(settings=settings)
 
-        assert container1.settings.api_key == container2.settings.api_key
+        assert (
+            container1.settings.weather_api_key == container2.settings.weather_api_key
+        )
         assert container1.settings.environment == container2.settings.environment
 
     # =========================================================================
@@ -111,7 +113,7 @@ class TestBootstrap:
         """bootstrap() should propagate configuration errors."""
         from weather_analytics_dashboard.config import ConfigurationError
 
-        monkeypatch.delenv("API_KEY", raising=False)
+        monkeypatch.delenv("WEATHER_API_KEY", raising=False)
 
         with pytest.raises(ConfigurationError):
             bootstrap()

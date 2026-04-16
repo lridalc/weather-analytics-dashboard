@@ -16,11 +16,11 @@ class TestMainFailFast:
 
     def test_main_exits_with_code_1_on_invalid_config(self, tmp_path, monkeypatch):
         """
-        Given an environment without API_KEY,
+        Given an environment without WEATHER_API_KEY,
         When main.py is executed as a module,
         Then the process should exit with code 1 (Error).
         """
-        # 1. Arrange: Clean environment without API_KEY due to fixtures
+        # 1. Arrange: Clean environment without WEATHER_API_KEY due to fixtures
 
         # Ensure we don't accidentally read a valid .env file
         monkeypatch.chdir(tmp_path)
@@ -50,7 +50,7 @@ class TestMainFailFast:
         Verify that configuration error message is displayed and the Uvicorn server
         never attempts to start.
         """
-        # Arrange: Clean environment without API_KEY due to fixtures
+        # Arrange: Clean environment without WEATHER_API_KEY due to fixtures
 
         # Ensure we don't accidentally read a valid .env file
         monkeypatch.chdir(tmp_path)
@@ -67,7 +67,7 @@ class TestMainFailFast:
 
         # Verify fatal error message appears in stderr
         assert "FATAL: Configuration validation failed" in result.stderr
-        assert "API_KEY" in result.stderr
+        assert "WEATHER_API_KEY" in result.stderr
 
         # Verify Uvicorn/FastAPI banner is NOT printed
         assert "Uvicorn running on" not in result.stdout
@@ -76,14 +76,14 @@ class TestMainFailFast:
     def test_main_exits_with_code_0_on_valid_config(self, tmp_path, monkeypatch):
         """
         Sanity check:
-        Given a valid API_KEY,
+        Given a valid WEATHER_API_KEY,
         When main.py is executed,
         Then the import should succeed (exit code 0).
 
         Note: We don't actually start the server in this test, we only verify
         that the module can be imported/executed without configuration errors.
         """
-        monkeypatch.setenv("API_KEY", "valid-test-key-for-sanity-check")
+        monkeypatch.setenv("WEATHER_API_KEY", "valid-test-key-for-sanity-check")
         monkeypatch.chdir(tmp_path)
 
         project_root = Path(__file__).parent.parent.parent.parent
@@ -103,7 +103,7 @@ class TestMainFailFast:
                 **dict(
                     monkeypatch._getenv() if hasattr(monkeypatch, "_getenv") else {}
                 ),
-                "API_KEY": "valid-test-key-for-sanity-check",
+                "WEATHER_API_KEY": "valid-test-key-for-sanity-check",
             },
         )
 

@@ -37,7 +37,7 @@ make install-dev
 # Configure environment
 cp .env.example .env
 # Add your OpenWeatherMap API key (https://openweathermap.org/api)
-# The .env file expects: API_KEY=your_api_key_here
+# The .env file expects: WEATHER_API_KEY=your_api_key_here
 
 # Run API
 make dev
@@ -407,7 +407,7 @@ make test
 
 | Variable              | Required | Default |
 | --------------------- | :------: | ------- |
-| `API_KEY`             | ✅       | —       |
+| `WEATHER_API_KEY`             | ✅       | —       |
 | `CACHE_TTL_WEATHER`   | ❌       | 300     |
 | `CACHE_TTL_GEOCODING` | ❌       | 604800  |
 | `CACHE_MAX_SIZE`      | ❌       | 100     |

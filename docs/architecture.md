@@ -290,7 +290,7 @@ Infrastructure failures never leak to clients. The same error taxonomy is applie
 
 - Centralized configuration via a `pydantic-settings` module
 - Configuration is loaded from environment variables or a `.env` file
-- Infrastructure-specific details (such as the provider API key) are read using generic variable names (e.g., `API_KEY`) to maintain abstraction and avoid coupling the configuration layer to a specific vendor
+- Infrastructure-specific details (such as the provider API key) are read using generic variable names (e.g., `WEATHER_API_KEY`) to maintain abstraction and avoid coupling the configuration layer to a specific vendor
 
 ### Logging
 
