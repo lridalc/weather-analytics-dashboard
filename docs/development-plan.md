@@ -234,9 +234,9 @@ git commit -m "ci: add CI workflows (bootstrap, test suite, code quality)"
 git merge --no-ff feat/1-health-endpoint -m "feat: add health endpoint (vertical slice)"
 ```
 
-**Bump version in pyproject.toml**
+**Prepare release**
 ```bash
-git commit -m "chore(release): bump version to 0.1.0"
+git commit -m "chore(release): prepare v0.1.0"
 ```
 
 **Merge to main:**
@@ -309,9 +309,9 @@ git merge --no-ff feat/2-weather-current-infra -m "feat: merge OpenWeather adapt
 git merge --no-ff feat/2-weather-current-cli -m "feat: merge CLI command for current weather into develop"
 ```
 
-**Bump version in pyproject.toml**
+**Prepare release**
 ```bash
-git commit -m "chore(release): bump version to 0.2.0"
+git commit -m "chore(release): prepare v0.2.0"
 ```
 
 **Merge to main:**
@@ -382,9 +382,9 @@ git merge --no-ff feat/3-weather-forecast-cli -m "feat: merge forecast CLI comma
 git merge --no-ff feat/3-weather-forecast-infra -m "feat: merge OpenWeather forecast support into develop"
 ```
 
-**Bump version in pyproject.toml**
+**Prepare release**
 ```bash
-git commit -m "chore(release): bump version to 0.3.0"
+git commit -m "chore(release): prepare v0.3.0"
 ```
 
 **Merge to main:**
@@ -471,9 +471,9 @@ git merge --no-ff feat/4-weather-history-api -m "feat: merge history API endpoin
 git merge --no-ff feat/4-weather-history-cli -m "feat: merge history CLI command into develop"
 ```
 
-**Bump version in pyproject.toml**
+**Prepare release**
 ```bash
-git commit -m "chore(release): bump version to 0.4.0"
+git commit -m "chore(release): prepare v0.4.0"
 ```
 
 **Merge to main:**
@@ -499,9 +499,9 @@ git tag -a "v0.4.0" -m "feat: release v0.4.0 - history endpoint working (all end
 git merge --no-ff feat/5-retry-http -m "feat: merge retry http client into develop"
 ```
 
-**Bump version in pyproject.toml**
+**Prepare release**
 ```bash
-git commit -m "chore(release): bump version to 0.5.0"
+git commit -m "chore(release): prepare v0.5.0"
 ```
 
 **Merge to main:**
@@ -528,9 +528,9 @@ git tag -a "v0.5.0" -m "feat: release v0.5.0 - retry working"
 git merge --no-ff feat/6-caching -m "feat: merge caching decorator for weather provider into develop"
 ```
 
-**Bump version in pyproject.toml**
+**Prepare release**
 ```bash
-git commit -m "chore(release): bump version to 0.6.0"
+git commit -m "chore(release): prepare v0.6.0"
 ```
 
 **Merge to main:**
