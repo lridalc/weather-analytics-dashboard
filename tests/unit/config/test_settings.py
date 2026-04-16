@@ -3,7 +3,8 @@
 import pytest
 from pydantic import ValidationError
 
-from weather_analytics_dashboard.config import (
+from weather_analytics_dashboard.config import Settings
+from weather_analytics_dashboard.config.constants import (
     DEFAULT_CACHE_MAX_SIZE,
     DEFAULT_CACHE_TTL_GEOCODING,
     DEFAULT_CACHE_TTL_WEATHER,
@@ -12,7 +13,6 @@ from weather_analytics_dashboard.config import (
     DEFAULT_RATE_LIMIT_REQUESTS,
     DEFAULT_RETRY_MAX_ATTEMPTS,
     DEFAULT_RETRY_WAIT_SECONDS,
-    Settings,
 )
 
 

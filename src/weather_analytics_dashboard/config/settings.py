@@ -7,7 +7,7 @@ from anyio.functools import lru_cache
 from pydantic import Field, ValidationError, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from weather_analytics_dashboard.config.constants import (
+from .constants import (
     DEFAULT_CACHE_MAX_SIZE,
     DEFAULT_CACHE_TTL_GEOCODING,
     DEFAULT_CACHE_TTL_WEATHER,
@@ -20,7 +20,7 @@ from weather_analytics_dashboard.config.constants import (
     Environment,
     LogLevel,
 )
-from weather_analytics_dashboard.config.exceptions import ConfigurationError
+from .exceptions import ConfigurationError
 
 
 class Settings(BaseSettings):

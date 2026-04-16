@@ -3,8 +3,8 @@
 import logging
 import sys
 
-from weather_analytics_dashboard.config import LOG_FORMAT
-from weather_analytics_dashboard.config.settings import Settings
+from .constants import LOG_FORMAT
+from .settings import Settings
 
 
 def setup_logging(settings: Settings) -> None:
