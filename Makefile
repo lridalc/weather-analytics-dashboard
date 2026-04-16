@@ -1,4 +1,4 @@
-.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit check clean
+.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit check clean release
 
 # ============================================================================
 # VARIABLES
@@ -158,6 +158,55 @@ clean:
 	@echo "$(GREEN)✅ All cache files cleaned!$(NC)"
 
 # ============================================================================
+# RELEASE
+# ============================================================================
+
+VERSION ?=
+
+# Show current version from pyproject.toml
+version:
+	@echo "$(YELLOW)Current version:$(NC) $(GREEN)$$(grep '^version = ' pyproject.toml | cut -d'"' -f2)$(NC)"
+
+# Prepare release (reminder + optional auto-tag)
+release:
+	@echo "$(YELLOW)📦 Preparing release...$(NC)"
+	@echo ""
+	@echo "$(GREEN)📋 Release Checklist:$(NC)"
+	@echo "  [ ] 1. Update version in pyproject.toml"
+	@echo "  [ ] 2. Move [Unreleased] to [vX.Y.Z] in CHANGELOG.md"
+	@echo "  [ ] 3. Add date to new version (YYYY-MM-DD)"
+	@echo "  [ ] 4. Update roadmap in README.md"
+	@echo "  [ ] 5. Run final checks: make check"
+	@echo ""
+	@echo "$(YELLOW)Current version:$(NC) $(GREEN)$$(grep '^version = ' pyproject.toml | cut -d'"' -f2)$(NC)"
+	@echo ""
+	@echo "$(YELLOW)Usage:$(NC)"
+	@echo "  make release VERSION=0.2.0    # Auto-commit and tag after manual steps"
+	@echo "  make release                   # Show this checklist only"
+	@echo ""
+	@if [ -n "$(VERSION)" ]; then \
+		read -p "Have you completed steps 1-5 above? [y/N]: " confirm; \
+		if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
+			echo "$(YELLOW)📦 Creating commit and tag for v$(VERSION)...$(NC)"; \
+			git add pyproject.toml CHANGELOG.md README.md; \
+			git commit -m "chore(release): prepare v$(VERSION)" || echo "No changes to commit"; \
+			git tag -a "v$(VERSION)" -m "feat: release v$(VERSION)"; \
+			echo "$(GREEN)✅ Release v$(VERSION) prepared locally!$(NC)"; \
+			echo ""; \
+			echo "$(YELLOW)🚀 Next steps:$(NC)"; \
+			echo "  make release-push"; \
+		else \
+			echo "$(RED)❌ Release cancelled. Complete checklist first.$(NC)"; \
+		fi \
+	fi
+
+# Push release to remote
+release-push:
+	@echo "$(YELLOW)🚀 Pushing to remote...$(NC)"
+	git push origin main --tags
+	@echo "$(GREEN)✅ Release published!$(NC)"
+
+# ============================================================================
 # HELP
 # ============================================================================
 
@@ -193,5 +242,9 @@ help:
 	@echo "$(GREEN)Utilities:$(NC)"
 	@echo "  make check             - Run all checks (lint + format + test + type)"
 	@echo "  make clean             - Remove cache and temporary files"
+	@echo "$(GREEN)Release:$(NC)"
+	@echo "  make release [VERSION=X.Y.Z] - Prepare a new release"
+	@echo "  make release-push            - Push release to remote"
+	@echo "  make version                 - Show current version"
 	@echo "  make help              - Show this help message"
 	@echo ""
