@@ -1,0 +1,64 @@
+# .pre-commit-config.yaml
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+repos:
+  # ===========================================================================
+  # Ruff: Fast Python linter + formatter
+  # ===========================================================================
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    # Ruff version.
+    rev: v0.15.11
+    hooks:
+      # Run the linter.
+      - id: ruff-check
+        args: [ --fix ]
+      # Run the formatter.
+      - id: ruff-format
+
+  # ===========================================================================
+  # Built-in pre-commit hooks
+  # ===========================================================================
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # Prevent committing files > 5MB
+      - id: check-added-large-files
+        args: ["--maxkb=5000"]
+      # Check for files that would conflict on case-insensitive filesystems
+      - id: check-case-conflict
+      # Check that executables have valid shebangs
+      - id: check-executables-have-shebangs
+      # Check for files with illegal Windows names (CON, PRN, AUX, NUL, etc.)
+      - id: check-illegal-windows-names
+      # Check JSON files syntax
+      - id: check-json
+      # Check for merge conflict markers (<<<<<<<, =======, >>>>>>>)
+      - id: check-merge-conflict
+      # Check that scripts with shebangs are executable
+      - id: check-shebang-scripts-are-executable
+      # Check symlinks are valid
+      - id: check-symlinks
+      # Check TOML files syntax (pyproject.toml)
+      - id: check-toml
+      # Check YAML files syntax (.github/workflows/*.yaml, .pre-commit-config.yaml)
+      - id: check-yaml
+      # Check for debug statements (breakpoint(), pdb.set_trace(), etc.)
+      - id: debug-statements
+      # Prevent committing private keys
+      - id: detect-private-key
+      # Ensure files end with a newline
+      - id: end-of-file-fixer
+      # Check line endings (CRLF, LF)
+      - id: mixed-line-ending
+        args: ["--fix=no"]
+      # Verify test files are named correctly (pytest pattern: test_*.py)
+      - id: name-tests-test
+        args: ["--pytest-test-first"]
+      # Prevent direct commits to main
+      - id: no-commit-to-branch
+      # Check JSON files are pretty
+      - id: pretty-format-json
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+        args: ["--markdown-linebreak-ext=md"]
