@@ -60,7 +60,7 @@ git push origin --delete <branch-name>
 
 ## Phase 0: Project Initiation
 
-**Branch:** `main` 
+**Branch:** `main`
 
 ```bash
 git init
@@ -73,7 +73,7 @@ git switch -c develop
 ---
 
 ## Phase 1: Project Planning & Documentation
-	
+
 **Branch:** `docs/project-foundation`
 
 | Commit | Message                                          |
@@ -89,7 +89,7 @@ git merge --no-ff docs/project-foundation -m "docs: merge project foundation doc
 ```
 
 ---
-	
+
 ## Phase 2: Initial Project Setup
 
 **Branch:** `chore/1-initial-setup`
@@ -104,7 +104,7 @@ git merge --no-ff chore/1-initial-setup -m "chore: merge project initial setup i
 ```
 
 ---
-	
+
 ## Phase 3: Entrypoint Verification
 
 **Branch:** `chore/2-entrypoint-verification`
@@ -131,7 +131,7 @@ git merge --no-ff test/smoke-tests -m "test: merge smoke tests for entrypoint ve
 ```
 
 ---
-	
+
 ## Phase 4: Missing ADRs
 
 **Branch:** `docs/add-missing-adrs`
@@ -196,7 +196,7 @@ git merge --no-ff docs/pr-template -m "docs: merge PR template into develop"
 ```
 
 ---
-	
+
 ## Phase 7: Configuration Settings
 
 **Branch:** `chore/3-config-settings`
@@ -218,7 +218,7 @@ git commit -m "ci: add CI workflows (bootstrap, test suite, code quality)"
 ```
 
 ---
-	
+
 ## Phase 8: `/health` Endpoint
 
 **Branch:** `feat/1-health-endpoint`
@@ -246,7 +246,7 @@ git tag -a "v0.1.0" -m "feat: release v0.1.0 - health endpoint working"
 ```
 
 ---
-	
+
 ## Phase 9: `/current` Endpoint
 
 ### Subphase 9.1 - Domain & Application Layer
