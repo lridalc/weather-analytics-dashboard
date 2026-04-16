@@ -16,6 +16,48 @@ This document outlines the complete development roadmap including branches, comm
 
 ---
 
+## Quick Reference
+
+| Branch Prefix | Commit Type | Purpose                                                    |
+| ------------- | ----------- | ---------------------------------------------------------- |
+| `docs/*`      | `docs:`     | Documentation (ADRs, README, architecture, planning)       |
+| `build/*`     | `build:`    | Build tooling (Makefile)                                   |
+| `ci/*`        | `ci:`       | CI configuration files and scripts (GitHub Actions)        |
+| `chore/*`     | `chore:`    | Settings, maintenance, configuration, dependencies         |
+| `test/*`      | `test:`     | Tests (fixtures, smoke tests, unit, integration)           |
+| `feat/*`      | `feat:`     | Features (endpoints, CLI commands, caching, retry)         |
+| `fix/*`       | `fix:`      | Bugs fixes                                                 |
+| `perf/*`      | `perf:`     | Code that improves performance                             |
+| `refactor/*`  | `refactor:` | Code changes that neither fix bugs nor add features        |
+| `style/*`     | `style:`    | Changes that do not affect the meaning of the code         |
+
+### Commit Message Convention (Conventional Commits)
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Merge Message Convention
+
+```bash
+git merge --no-ff <branch> -m "<type>: merge <description> into <branch>"
+```
+
+### Branch Cleanup
+
+After merging each branch, delete it both locally and remotely:
+
+```bash
+git branch -d <branch-name>
+git push origin --delete <branch-name>
+```
+
+---
+
 ## Phase 0: Project Initiation
 
 **Branch:** `main` 
@@ -192,6 +234,11 @@ git commit -m "ci: add CI workflows (bootstrap, test suite, code quality)"
 git merge --no-ff feat/1-health-endpoint -m "feat: add health endpoint (vertical slice)"
 ```
 
+**Bump version in pyproject.toml**
+```bash
+git commit -m "chore(release): bump version to 0.1.0"
+```
+
 **Merge to main:**
 ```bash
 git merge --no-ff develop -m "chore(release): merge develop into main for v0.1.0"
@@ -262,6 +309,11 @@ git merge --no-ff feat/2-weather-current-infra -m "feat: merge OpenWeather adapt
 git merge --no-ff feat/2-weather-current-cli -m "feat: merge CLI command for current weather into develop"
 ```
 
+**Bump version in pyproject.toml**
+```bash
+git commit -m "chore(release): bump version to 0.2.0"
+```
+
 **Merge to main:**
 ```bash
 git merge --no-ff develop -m "chore(release): merge develop into main for v0.2.0"
@@ -328,6 +380,11 @@ git merge --no-ff feat/3-weather-forecast-cli -m "feat: merge forecast CLI comma
 **Merge to develop:**
 ```bash
 git merge --no-ff feat/3-weather-forecast-infra -m "feat: merge OpenWeather forecast support into develop"
+```
+
+**Bump version in pyproject.toml**
+```bash
+git commit -m "chore(release): bump version to 0.3.0"
 ```
 
 **Merge to main:**
@@ -414,6 +471,11 @@ git merge --no-ff feat/4-weather-history-api -m "feat: merge history API endpoin
 git merge --no-ff feat/4-weather-history-cli -m "feat: merge history CLI command into develop"
 ```
 
+**Bump version in pyproject.toml**
+```bash
+git commit -m "chore(release): bump version to 0.4.0"
+```
+
 **Merge to main:**
 ```bash
 git merge --no-ff develop -m "chore(release): merge develop into main for v0.4.0"
@@ -435,6 +497,11 @@ git tag -a "v0.4.0" -m "feat: release v0.4.0 - history endpoint working (all end
 **Merge to develop:**
 ```bash
 git merge --no-ff feat/5-retry-http -m "feat: merge retry http client into develop"
+```
+
+**Bump version in pyproject.toml**
+```bash
+git commit -m "chore(release): bump version to 0.5.0"
 ```
 
 **Merge to main:**
@@ -461,6 +528,11 @@ git tag -a "v0.5.0" -m "feat: release v0.5.0 - retry working"
 git merge --no-ff feat/6-caching -m "feat: merge caching decorator for weather provider into develop"
 ```
 
+**Bump version in pyproject.toml**
+```bash
+git commit -m "chore(release): bump version to 0.6.0"
+```
+
 **Merge to main:**
 ```bash
 git merge --no-ff develop -m "chore(release): merge develop into main for v0.6.0"
@@ -477,36 +549,6 @@ git merge --no-ff develop -m "chore(release): merge develop into main for v1.0.0
 git tag -a "v1.0.0" -m "feat: release v1.0.0 - weather analytics dashboard with REST API, CLI, caching and retry"
 git push origin main
 git push origin v1.0.0
-```
-
----
-
-## Branch Cleanup
-
-After merging each branch, delete it both locally and remotely:
-
-```bash
-git branch -d <branch-name>
-git push origin --delete <branch-name>
-```
-
----
-
-## Quick Reference
-
-| Branch Prefix | Commit Type | Purpose                                                    |
-| ------------- | ----------- | ---------------------------------------------------------- |
-| `docs/*`      | `docs:`     | Documentation (ADRs, README, architecture, planning)       |
-| `chore/*`     | `chore:`    | Settings, maintenance, configuration, dependencies         |
-| `test/*`      | `test:`     | Tests (fixtures, smoke tests, unit, integration, contract) |
-| `build/*`     | `build:`    | Build tooling (Makefile, automation scripts)               |
-| `feat/*`      | `feat:`     | Features (endpoints, CLI commands, caching, retry)         |
-| `fix/*`       | `fix:`      | Fixes                                                      |
-
-## Merge Message Convention
-
-```bash
-git merge --no-ff <branch> -m "<type>: merge <description> into develop"
 ```
 
 ---
