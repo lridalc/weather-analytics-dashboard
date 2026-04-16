@@ -43,7 +43,8 @@ class Settings(BaseSettings):
 
     weather_api_key: str = Field(
         ...,
-        description="API key (required)",
+        title="Weather API key",
+        description="Weather API key (required)",
     )
 
     # =========================================================================
@@ -52,20 +53,23 @@ class Settings(BaseSettings):
 
     cache_ttl_weather: int = Field(
         default=DEFAULT_CACHE_TTL_WEATHER,
-        ge=0,
+        title="Weather data cache TTL",
         description="Weather data cache TTL in seconds (0 to disable)",
+        ge=0,
     )
 
     cache_ttl_geocoding: int = Field(
         default=DEFAULT_CACHE_TTL_GEOCODING,
-        ge=0,
+        title="Geocoding data cache TTL",
         description="Geocoding data cache TTL in seconds (0 to disable)",
+        ge=0,
     )
 
     cache_max_size: int = Field(
         default=DEFAULT_CACHE_MAX_SIZE,
-        ge=1,
+        title="Cache max size",
         description="Maximum number of entries in the cache (FIFO eviction)",
+        ge=1,
     )
 
     # =========================================================================
@@ -74,15 +78,17 @@ class Settings(BaseSettings):
 
     retry_max_attempts: int = Field(
         default=DEFAULT_RETRY_MAX_ATTEMPTS,
-        ge=0,
+        title="Retry max attempts",
         description="Max retry attempts for transient HTTP failures (0 to disable)",
+        ge=0,
     )
 
     retry_wait_seconds: int = Field(
         default=DEFAULT_RETRY_WAIT_SECONDS,
-        ge=0,
+        title="Retry wait seconds",
         description="Initial wait time between retries in seconds (exponential backoff,"
         "0 for no delay)",
+        ge=0,
     )
 
     # =========================================================================
@@ -91,8 +97,9 @@ class Settings(BaseSettings):
 
     rate_limit_requests: int = Field(
         default=DEFAULT_RATE_LIMIT_REQUESTS,
-        ge=1,
+        title="Rate limit requests",
         description="Max requests per minute",
+        ge=1,
     )
 
     # =========================================================================
@@ -101,11 +108,13 @@ class Settings(BaseSettings):
 
     environment: Environment = Field(
         default=DEFAULT_ENVIRONMENT,
+        title="Environment",
         description="Execution environment",
     )
 
     log_level: LogLevel = Field(
         default=DEFAULT_LOG_LEVEL,
+        title="Log level",
         description="Logging verbosity level",
     )
 
@@ -116,7 +125,7 @@ class Settings(BaseSettings):
     @field_validator("weather_api_key")
     @classmethod
     def validate_api_key(cls, v: str) -> str:
-        """Validate that API key is not empty or whitespace only."""
+        """Validate that Weather API key is not empty or whitespace only."""
         if not v or not v.strip():
             raise ValueError("WEATHER_API_KEY cannot be empty or whitespace only")
         return v.strip()
