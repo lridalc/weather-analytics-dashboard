@@ -12,5 +12,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Configuration system using Pydantic Settings.
 - Smoke tests to verify application integrity.
 - CI/CD pipeline with layered testing strategy (Smoke, Unit, Integration).
-- Project skeleton and development tooling (Makefile, uv, ruff, mypy).
+- Project skeleton and development tooling (Makefile, uv, ruff, mypy, pre-commit hooks).
 - Initial project documentation (Scope, Architecture, ADRs).
