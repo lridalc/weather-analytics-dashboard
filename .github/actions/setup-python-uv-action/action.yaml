@@ -15,4 +15,3 @@ runs:
     - name: Install dependencies
       shell: bash
       run: uv sync
-      timeout-minutes: 3
