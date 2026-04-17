@@ -1,0 +1,22 @@
+name: Test Suite
+
+on:
+  workflow_call:  # Allows this workflow to be called from ci.yaml
+  workflow_dispatch:  # Allows this workflow to be manually called from GitHub UI
+
+jobs:
+  unit:
+    name: Unit Tests (Domain + Application)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 7
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Environment
+        uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
+
+      - name: Run unit tests
+        run: uv run pytest tests/unit/ -v --tb=short
