@@ -1,0 +1,21 @@
+name: Setup Python and uv
+description: Checks out code, installs uv, Python 3.12 and dev dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      shell: bash
+      run: uv sync
+      timeout-minutes: 3

@@ -2,9 +2,16 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - main
+      - develop
   pull_request:
-    branches: [main]
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # ===========================================================================
@@ -15,15 +22,15 @@ jobs:
 
   quality:
     name: 📋 Code Quality
-    uses: ./.github/workflows/quality.yml
+    uses: ./.github/workflows/quality.yaml
 
   smoke:
     name: 🚦 Smoke Tests
-    uses: ./.github/workflows/smoke.yml
+    uses: ./.github/workflows/smoke.yaml
 
   bootstrap:
     name: 🔧 Bootstrap Configuration
-    uses: ./.github/workflows/bootstrap.yml
+    uses: ./.github/workflows/bootstrap.yaml
 
   # ===========================================================================
   # PHASE 2: UNIT TESTS (SEQUENTIAL - depends on Phase 1)
@@ -34,26 +41,8 @@ jobs:
   unit:
     name: 🧪 Unit Tests (Domain + Application)
     needs: [quality, smoke, bootstrap]
-    runs-on: ubuntu-latest
     if: success()  # Only run if all Phase 1 jobs succeed
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: uv sync --group dev
-
-      - name: Run unit tests
-        run: uv run pytest tests/unit/ -v --tb=short
+    uses: ./.github/workflows/unit.yaml
 
   # ===========================================================================
   # PHASE 3: INTEGRATION TESTS (SEQUENTIAL - depends on Phase 2)
@@ -65,29 +54,8 @@ jobs:
   integration:
     name: 🔗 Integration Tests (Infrastructure + API)
     needs: [unit]
-    runs-on: ubuntu-latest
     if: success()  # Only run if all Phase 2 jobs succeed
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@cec208311dfd045dd5311c1add060b2062131d57
-
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Install dependencies
-        run: uv sync --group dev
-
-      - name: Run integration tests (exclude bootstrap)
-        run: |
-          uv run pytest tests/integration/ \
-            --ignore=tests/integration/bootstrap/ \
-            -v --tb=short
+    uses: ./.github/workflows/integration.yaml
 
   # ===========================================================================
   # PHASE 4: SUMMARY

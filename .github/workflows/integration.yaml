@@ -1,19 +1,22 @@
-name: Bootstrap Tests
+name: Test Suite
 
 on:
   workflow_call:  # Allows this workflow to be called from ci.yaml
   workflow_dispatch:  # Allows this workflow to be manually called from GitHub UI
 
 jobs:
-  bootstrap:
-    name: Bootstrap Configuration
+  integration:
+    name: Integration Tests (Infrastructure + API)
     runs-on: ubuntu-24.04
-    timeout-minutes: 6
+    timeout-minutes: 10
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
         timeout-minutes: 5
 
-      - name: Run bootstrap tests
-        run: uv run pytest tests/integration/bootstrap/ -v --tb=short
+      - name: Run integration tests (exclude bootstrap)
+        run: |
+          uv run pytest tests/integration/ \
+            --ignore=tests/integration/bootstrap/ \
+            -v --tb=short
