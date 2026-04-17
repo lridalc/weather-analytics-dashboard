@@ -108,12 +108,14 @@ class TestSettings:
     # =========================================================================
 
     @pytest.mark.no_test_environment
-    def test_minimal_configuration_loads_with_defaults(self, monkeypatch):
+    def test_minimal_configuration_loads_with_defaults(
+        self, monkeypatch, isolated_settings
+    ):
         """When only WEATHER_API_KEY is provided, all optional fields use defaults."""
         monkeypatch.setenv("WEATHER_API_KEY", "test-api-key-123")
         monkeypatch.delenv("ENVIRONMENT", False)
 
-        settings = Settings()
+        settings = isolated_settings()
 
         assert settings.weather_api_key == "test-api-key-123"
         assert settings.cache_ttl_weather == DEFAULT_CACHE_TTL_WEATHER

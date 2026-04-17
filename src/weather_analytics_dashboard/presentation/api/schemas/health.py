@@ -6,13 +6,6 @@ from pydantic import BaseModel, Field
 class HealthResponse(BaseModel):
     """Health check response model."""
 
-    status: str = Field(
-        default="healthy",
-        description="Current health status of the service.",
-        examples=["healthy"],
-        pattern="^(healthy|degraded|unhealthy)$",
-    )
-
     model_config = {
         "json_schema_extra": {
             "example": {
@@ -20,3 +13,10 @@ class HealthResponse(BaseModel):
             }
         }
     }
+
+    status: str = Field(
+        default="healthy",
+        description="Current health status of the service.",
+        examples=["healthy"],
+        pattern="^(healthy|degraded|unhealthy)$",
+    )

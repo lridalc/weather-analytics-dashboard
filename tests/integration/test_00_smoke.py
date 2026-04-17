@@ -13,14 +13,14 @@ class TestSmoke:
         """Verify CLI entrypoint works without crashing."""
         result = cli_runner([])
         # check=True already validates returncode
-        # Explicit assert impoves readability
+        # Explicit assert improves readability
         assert result.returncode == 0
 
     def test_cli_entrypoint_help(self, cli_runner):
         """Verify CLI --help entrypoint works without crashing."""
         result = cli_runner(["--help"])
         # check=True already validates returncode
-        # Explicit assert impoves readability
+        # Explicit assert improves readability
         assert result.returncode == 0
 
     def test_api_app_creation(self, app):

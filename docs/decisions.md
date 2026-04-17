@@ -1140,49 +1140,46 @@ Adopt a **layer-first module organization** using Python **regular packages**, s
 weather-analytics-dashboard/
 ├── src/
 │   └── weather_analytics_dashboard/
-│       ├── __init__.py
-│       ├── main.py                 # FastAPI app creation & Composition Root
+│       ├── main.py                      # API entry point (minimal)
+│       ├── bootstrap.py                 # Composition Root
 │       │
-│       ├── presentation/           # Layer: Interface Adapters
-│       │   ├── __init__.py
+│       ├── presentation/                # Interface Adapters layer
 │       │   ├── api/
-│       │   │   ├── __init__.py
-│       │   │   ├── routes/         # Grouped by feature (weather.py, health.py)
-│       │   │   └── dependencies.py # FastAPI Depends retrieval logic
+│       │   │   ├── app.py               # FastAPI factory + lifespan
+│       │   │   ├── dependencies.py      # Depends injection retrieval
+│       │   │   ├── routes/              # Endpoints grouped by feature
+│       │   │   └── schemas/             # Request/Response models
 │       │   └── cli/
-│       │       ├── __init__.py
-│       │       └── commands/       # Grouped by feature
+│       │       ├── main.py              # CLI entry point
+│       │       └── commands/            # CLI commands by feature
 │       │
-│       ├── application/            # Layer: Use Cases
-│       │   ├── __init__.py
-│       │   └── services/           # Orchestration logic
+│       ├── application/                 # Use Cases layer
+│       │   └── services/                # Orchestration logic
 │       │
-│       ├── domain/                 # Layer: Enterprise Business Rules
-│       │   ├── __init__.py
-│       │   ├── models.py           # Pydantic entities & value objects
-│       │   ├── ports.py            # Abstract interfaces (WeatherProviderPort, etc.)
-│       │   └── exceptions.py       # Domain-specific errors
+│       ├── domain/                      # Enterprise Business Rules layer
+│       │   ├── models.py                # Entities & value objects
+│       │   ├── ports.py                 # Abstract interfaces
+│       │   └── exceptions.py            # Domain errors
 │       │
-│       ├── infrastructure/         # Layer: Frameworks & Drivers
-│       │   ├── __init__.py
-│       │   ├── weather_providers/  # Adapters (openweather_adapter.py)
-│       │   ├── geocoding/          # Shared service
-│       │   ├── cache/              # Cached provider decorator & TTL store
-│       │   ├── persistence/        # SQLAlchemy models & Repository impl
-│       │   └── http/               # HTTPX client manager & retry logic
+│       ├── infrastructure/              # Frameworks & Drivers layer
+│       │   ├── weather_providers/       # External API adapters
+│       │   ├── geocoding/               # Location resolution
+│       │   ├── cache/                   # Caching decorators
+│       │   ├── persistence/             # Database repositories
+│       │   └── http/                    # HTTP client + retry logic
 │       │
-│       └── config/                 # Cross-cutting concern
-│           ├── __init__.py
-│           └── settings.py         # Pydantic Settings
+│       └── config/                      # Cross-cutting configuration
+│           ├── settings.py              # Pydantic Settings
+│           ├── logging.py               # Logging setup
+│           └── exceptions.py            # Base exceptions
 │
-├── tests/                          # Mirrors src/ structure
-│   ├── unit/
-│   ├── integration/
+├── tests/
+│   ├── unit/                            # Domain & service tests
+│   ├── integration/                     # API & infrastructure tests
 │   └── conftest.py
 │
-├── docs/                           # ADRs, Scope, Architecture
-├── pyproject.toml
-└── .env.example
+├── docs/                                # ADRs and architecture
+└── pyproject.toml                       # Project metadata
 ```
 
 ### Naming Conventions

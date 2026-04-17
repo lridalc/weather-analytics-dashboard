@@ -9,7 +9,7 @@
 
 A production-style weather data service with intelligent caching, query history, and dual interfaces (REST API + CLI). Built to demonstrate **clean architecture, async Python, and real-world backend patterns**.
 
-> 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slice (/health endpoint) currently being implemented.
+> 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slice (/current endpoint) currently being implemented.
 
 ---
 
@@ -65,7 +65,7 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 | Version | Focus                                    | Status |
 | :-----: | ---------------------------------------- | :----: |
-| 0.1.0   | Foundation (`/health`)                   | [ ]    |
+| 0.1.0   | Foundation (`/health`)                   | [x]    |
 | 0.2.0   | Current Weather API (`/weather/current`) | [ ]    |
 | 0.3.0   | Forecast System (`/weather/forecast`)    | [ ]    |
 | 0.4.0   | History Persistence (`/weather/history`) | [ ]    |
@@ -90,9 +90,9 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 #### Health Endpoint (Vertical Slice #0)
 
-- [ ] `/health` endpoint implementation
-- [ ] Health check tests
-- [ ] Minimal API wiring validation
+- [x] `/health` endpoint implementation
+- [x] Health check tests
+- [x] Minimal API wiring validation
 
 ---
 
@@ -289,28 +289,54 @@ The current structure is the foundational layer. The system will evolve incremen
 
 ```bash
 .
-├── docs/                  # Architecture, ADRs, and development planning
+├── docs/                                  # Architecture, ADRs, and development planning
 │   ├── architecture.md
 │   ├── decisions.md
 │   ├── development-plan.md
 │   └── project-scope.md
 │
 ├── src/weather_analytics_dashboard/
-│   ├── application/       # Use cases (business workflows)
-│   ├── domain/            # Core business logic and models
-│   ├── infrastructure/    # External systems (DB, APIs, cache)
-│   ├── presentation/      # Interfaces (API + CLI)
+│   ├── config/                            # Configuration, settings, constants, and exceptions
+│   │   ├── constants.py
+│   │   ├── exceptions.py
+│   │   ├── logging.py
+│   │   └── settings.py
+│   ├── application/                       # Use cases (business workflows)
+│   ├── domain/                            # Core business logic and models
+│   ├── infrastructure/                    # External systems (DB, APIs, cache)
+│   ├── presentation/                      # Interfaces (API + CLI)
 │   │   ├── api/
+│   │   │   ├── app.py
+│   │   │   ├── dependencies.py
+│   │   │   ├── routes/
+│   │   │   │   └── health.py
+│   │   │   └── schemas/
+│   │   │       └── health.py
 │   │   └── cli/
-│   └── main.py            # Application entry point
+│   │       └── main.py
+│   ├── bootstrap.py                       # Dependency injection and app initialization
+│   └── main.py                            # Application entry point
 │
 ├── tests/
-│   ├── unit/              # Unit tests (domain & services)
-│   └── integration/       # Integration tests (API, DB)
+│   ├── unit/                              # Unit tests (domain & services)
+│   │   └── config/
+│   │       └── test_settings.py
+│   ├── integration/                       # Integration tests (API, DB)
+│   │   ├── bootstrap/
+│   │   ├── config/
+│   │   ├── presentation/
+│   │   │   ├── api/
+│   │   │   └── cli/
+│   │   └── test_00_smoke.py
+│   └── conftest.py                        # Pytest fixtures and configuration
 │
-├── .github/               # CI/CD and PR templates
-├── Makefile               # Development commands
-├── pyproject.toml         # Project configuration
+├── .github/                               # CI/CD workflows, actions, and PR templates
+│   ├── actions/
+│   ├── workflows/
+│   └── pull_request_template.md
+│
+├── Makefile                               # Development commands
+├── pyproject.toml                         # Project configuration and dependencies
 └── README.md
 ```
 

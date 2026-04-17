@@ -109,11 +109,11 @@ class TestBootstrap:
     # ERROR PROPAGATION
     # =========================================================================
 
-    def test_bootstrap_propagates_configuration_errors(self, monkeypatch):
+    def test_bootstrap_propagates_configuration_errors(
+        self, monkeypatch, isolated_settings
+    ):
         """bootstrap() should propagate configuration errors."""
         from weather_analytics_dashboard.config import ConfigurationError
-
-        monkeypatch.delenv("WEATHER_API_KEY", raising=False)
 
         with pytest.raises(ConfigurationError):
             bootstrap()

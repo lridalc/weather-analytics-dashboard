@@ -14,7 +14,6 @@ try:
 except ConfigurationError:
     sys.exit(1)
 
-
 from weather_analytics_dashboard.presentation.api import create_app
 
 # Create the FastAPI application instance
