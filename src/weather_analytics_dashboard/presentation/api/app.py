@@ -45,14 +45,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(
         title="Weather Analytics Dashboard",
-        description="Production-ready weather data service",
-        version="0.0.1",
+        description="Weather data service - MVP scaffold (health check only)",
+        version="0.1.0",
         lifespan=lifespan,
     )
 
     @app.get("/")
     async def root() -> dict:
         """Root endpoint."""
-        return {"message": "Weather Analytics Dashboard API"}
+        return {"service": "Weather Analytics Dashboard API"}
 
     return app
