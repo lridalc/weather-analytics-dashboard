@@ -29,8 +29,14 @@ class TestSmoke:
         assert app.title == "Weather Analytics Dashboard"
 
     def test_api_root_endpoint(self, client):
-        """Verify root endpoint responds successfully."""
+        """Verify Root endpoint responds successfully."""
         response = client.get("/")
+        assert response.status_code == 200
+        assert response.json()
+
+    def test_api_health_endpoint(self, client):
+        """Verify Health endpoint responds successfully."""
+        response = client.get("/health")
         assert response.status_code == 200
         assert response.json()
 
