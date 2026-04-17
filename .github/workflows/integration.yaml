@@ -11,6 +11,9 @@ jobs:
     timeout-minutes: 10
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
         timeout-minutes: 5
