@@ -1,9 +1,12 @@
 """Health check endpoint routes."""
 
+import logging
+
 from fastapi import APIRouter, status
 
 from ..schemas import HealthResponse
 
+logger = logging.getLogger(__name__)
 router = APIRouter(tags=["health"])
 
 
@@ -20,4 +23,12 @@ async def health_check() -> HealthResponse:
 
     Returns:
         HealthResponse: Service health status."""
-    return HealthResponse(status="healthy")
+    # Observability log (DEBUG level because it is a very frequent endpoint)
+    logger.debug("Health check requested")
+
+    response: HealthResponse = HealthResponse(status="healthy")
+
+    # Response log
+    logger.debug(f"Health check completed with status: {response.status}")
+
+    return response
