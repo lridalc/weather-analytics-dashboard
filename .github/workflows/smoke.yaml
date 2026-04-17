@@ -8,10 +8,12 @@ jobs:
   smoke:
     name: Entrypoint Verification
     runs-on: ubuntu-24.04
+    timeout-minutes: 6
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
 
       - name: Run smoke tests
         run: uv run pytest tests/integration/test_00_smoke.py -v --tb=short

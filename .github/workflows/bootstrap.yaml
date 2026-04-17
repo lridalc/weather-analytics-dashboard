@@ -8,10 +8,12 @@ jobs:
   bootstrap:
     name: Bootstrap Configuration
     runs-on: ubuntu-24.04
+    timeout-minutes: 6
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
 
       - name: Run bootstrap tests
         run: uv run pytest tests/integration/bootstrap/ -v --tb=short

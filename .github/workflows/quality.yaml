@@ -8,10 +8,12 @@ jobs:
   lint:
     name: Lint (Ruff)
     runs-on: ubuntu-24.04
+    timeout-minutes: 6
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
 
       - name: Run Ruff linter
         run: uv run ruff check .
@@ -19,10 +21,12 @@ jobs:
   format:
     name: Format (Ruff)
     runs-on: ubuntu-24.04
+    timeout-minutes: 6
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
 
       - name: Check code formatting
         run: uv run ruff format . --check
@@ -30,10 +34,12 @@ jobs:
   type-check:
     name: Type Check (Mypy)
     runs-on: ubuntu-24.04
+    timeout-minutes: 6
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
 
       - name: Run Mypy static type checking
         run: uv run mypy .

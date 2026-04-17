@@ -8,10 +8,12 @@ jobs:
   integration:
     name: Integration Tests (Infrastructure + API)
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
 
       - name: Run integration tests (exclude bootstrap)
         run: |

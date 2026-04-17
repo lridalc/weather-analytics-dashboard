@@ -8,10 +8,12 @@ jobs:
   unit:
     name: Unit Tests (Domain + Application)
     runs-on: ubuntu-24.04
+    timeout-minutes: 7
 
     steps:
       - name: Setup Environment
         uses: ./.github/actions/setup-python-uv-action
+        timeout-minutes: 5
 
       - name: Run unit tests
         run: uv run pytest tests/unit/ -v --tb=short
