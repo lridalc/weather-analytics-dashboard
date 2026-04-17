@@ -26,12 +26,29 @@ def cli_runner():
     """Run CLI commands and return subprocess result."""
     project_root = Path(__file__).parent.parent
 
-    def _run(args: list[str]):
+    def _run(
+        args: list[str], check: bool = True, timeout: int = 10
+    ) -> subprocess.CompletedProcess | None:
+        """
+        Run CLI command and return the result.
+
+        Args:
+            args: Command arguments
+            check: If True, raises CalledProcessError on failure
+
+        Returns:
+            CompletedProcess: Command result (only when check=False or command succeeds)
+
+        Raises:
+            subprocess.CalledProcessError: If check=True and command fails
+        """
         return subprocess.run(
             ["uv", "run", "weather"] + args,
             capture_output=True,
             text=True,
             cwd=project_root,
+            check=check,
+            timeout=timeout,
         )
 
     return _run

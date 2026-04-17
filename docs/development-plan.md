@@ -223,11 +223,11 @@ git commit -m "ci: add CI workflows (bootstrap, test suite, code quality)"
 
 **Branch:** `feat/1-health-endpoint`
 
-| Commit | Message                                                   |
-| :----: | --------------------------------------------------------- |
-| 1      | `test(api): add failing test for GET /health endpoint`    |
-| 2      | `feat(api): implement GET /health endpoint`               |
-| 3      | `refactor(api): clean health endpoint response structure` |
+| Commit | Message                                                                    |
+| :----: | -------------------------------------------------------------------------- |
+| 1      | `test(api): add failing tests for GET /health endpoint with status only`   |
+| 2      | `feat(api): implement GET /health endpoint with status only`               |
+| 3      | `refactor(api): clean health endpoint response structure`                  |
 
 **Merge to develop:**
 ```bash

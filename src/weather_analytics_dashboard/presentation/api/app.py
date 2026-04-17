@@ -8,6 +8,7 @@ from fastapi import FastAPI
 
 from weather_analytics_dashboard.bootstrap import AppContainer, bootstrap
 from weather_analytics_dashboard.config import Settings
+from weather_analytics_dashboard.presentation.api.routes import health
 
 logger = logging.getLogger(__name__)
 
@@ -45,14 +46,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(
         title="Weather Analytics Dashboard",
-        description="Production-ready weather data service",
-        version="0.0.1",
+        description="Weather data service - MVP scaffold (health check only)",
+        version="0.1.0",
         lifespan=lifespan,
     )
+
+    # Register routes
+    app.include_router(health.router)
 
     @app.get("/")
     async def root() -> dict:
         """Root endpoint."""
-        return {"message": "Weather Analytics Dashboard API"}
+        return {"service": "Weather Analytics Dashboard API"}
 
     return app
