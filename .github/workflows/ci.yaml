@@ -15,15 +15,15 @@ jobs:
 
   quality:
     name: 📋 Code Quality
-    uses: ./.github/workflows/quality.yml
+    uses: ./.github/workflows/quality.yaml
 
   smoke:
     name: 🚦 Smoke Tests
-    uses: ./.github/workflows/smoke.yml
+    uses: ./.github/workflows/smoke.yaml
 
   bootstrap:
     name: 🔧 Bootstrap Configuration
-    uses: ./.github/workflows/bootstrap.yml
+    uses: ./.github/workflows/bootstrap.yaml
 
   # ===========================================================================
   # PHASE 2: UNIT TESTS (SEQUENTIAL - depends on Phase 1)
