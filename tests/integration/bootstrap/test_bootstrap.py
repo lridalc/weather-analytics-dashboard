@@ -40,19 +40,19 @@ class TestBootstrap:
 
     def test_bootstrap_loads_settings_when_not_provided(self, monkeypatch):
         """bootstrap() should load settings from environment if not provided."""
-        monkeypatch.setenv("WEATHER_API_KEY", "env-key")
+        monkeypatch.setenv("RATE_LIMIT_RPM", "1")
 
         container = bootstrap()
 
-        assert container.settings.weather_api_key == "env-key"
+        assert container.settings.rate_limit_rpm == 1
 
     def test_bootstrap_accepts_none_settings(self, monkeypatch):
         """bootstrap(settings=None) should behave like no settings provided."""
-        monkeypatch.setenv("WEATHER_API_KEY", "none-key")
+        monkeypatch.setenv("RATE_LIMIT_RPM", "1")
 
         container = bootstrap(settings=None)
 
-        assert container.settings.weather_api_key == "none-key"
+        assert container.settings.rate_limit_rpm == 1
 
     def test_bootstrap_returns_new_container_each_call(self, settings):
         """Each bootstrap call should return a new container instance."""
@@ -63,12 +63,12 @@ class TestBootstrap:
 
     def test_bootstrap_does_not_mutate_settings(self, settings):
         """bootstrap() must not modify the provided Settings object."""
-        original_api_key = settings.weather_api_key
+        original_rate_limit_rpm = settings.rate_limit_rpm
         original_log_level = settings.log_level
 
         bootstrap(settings=settings)
 
-        assert settings.weather_api_key == original_api_key
+        assert settings.rate_limit_rpm == original_rate_limit_rpm
         assert settings.log_level == original_log_level
 
     def test_bootstrap_is_deterministic(self, settings):
@@ -76,10 +76,8 @@ class TestBootstrap:
         container1 = bootstrap(settings=settings)
         container2 = bootstrap(settings=settings)
 
-        assert (
-            container1.settings.weather_api_key == container2.settings.weather_api_key
-        )
         assert container1.settings.environment == container2.settings.environment
+        assert container1.settings.log_level == container2.settings.log_level
 
     # =========================================================================
     # LOGGING (INTEGRATION SIGNAL ONLY)
@@ -109,9 +107,10 @@ class TestBootstrap:
     # ERROR PROPAGATION
     # =========================================================================
 
-    def test_bootstrap_propagates_configuration_errors(
-        self, monkeypatch, isolated_settings
-    ):
+    def test_bootstrap_propagates_configuration_errors(self, monkeypatch):
+        # Invalid RATE_LIMIT_RPM
+        monkeypatch.setenv("RATE_LIMIT_RPM", "-1")
+
         """bootstrap() should propagate configuration errors."""
         from weather_analytics_dashboard.config import ConfigurationError
 

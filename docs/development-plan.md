@@ -285,13 +285,13 @@ git merge --no-ff feat/2-weather-current-api -m "feat: merge current weather API
 
 | Commit | Message                                                    |
 | :----: | ---------------------------------------------------------- |
-| 1      | `test(infra): add failing test for openweather adapter`    |
-| 2      | `feat(infra): implement openweather adapter`               |
+| 1      | `test(infra): add failing test for Open-Meteo adapter`     |
+| 2      | `feat(infra): implement Open-Meteo adapter`                |
 | 3      | `chore(infra): wire dependencies for weather current flow` |
 
 **Merge to develop:**
 ```bash
-git merge --no-ff feat/2-weather-current-infra -m "feat: merge OpenWeather adapter for current weather into develop"
+git merge --no-ff feat/2-weather-current-infra -m "feat: merge Open-Meteo adapter for current weather into develop"
 ```
 
 ### Subphase 9.4 - CLI Command
@@ -379,7 +379,7 @@ git merge --no-ff feat/3-weather-forecast-cli -m "feat: merge forecast CLI comma
 
 **Merge to develop:**
 ```bash
-git merge --no-ff feat/3-weather-forecast-infra -m "feat: merge OpenWeather forecast support into develop"
+git merge --no-ff feat/3-weather-forecast-infra -m "feat: merge Open-Meteo forecast support into develop"
 ```
 
 **Prepare release**

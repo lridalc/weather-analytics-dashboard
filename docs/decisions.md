@@ -70,6 +70,7 @@ Each ADR follows this structure:
 | ADR-021 | Resilience     | Rate limiting strategy           | Global quota protection            | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
 | ADR-022 | Architecture   | Dependency injection strategy    | Composition root (manual DI)       | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
 | ADR-023 | Architecture   | Module organization & naming     | Layer-first structure              | [🔗](#adr-023-module-organization--naming-convention) |
+| ADR-024 | External       | MVP weather provider             | Open-Meteo (no API key)            | [🔗](#adr-024-mvp-weather-provider-selection) |
 
 ---
 
@@ -450,7 +451,7 @@ Use `tenacity` to apply retry with exponential backoff at the HTTP client level,
 Configuration (via settings):
 
 - `RETRY_MAX_ATTEMPTS` (default: 3)
-- `RETRY_WAIT_SECONDS` initial wait (default: 1s, doubles each attempt)
+- `RETRY_INITIAL_WAIT_SECONDS` initial wait (default: 1s, doubles each attempt)
 
 Retry applies only to recoverable errors: connection errors, timeouts, and 5xx responses. 4xx errors (e.g., invalid API key, city not found) are not retried.
 
@@ -1240,6 +1241,36 @@ This reinforces the testing strategy defined in ADR-020.
 
 ---
 
+## ADR-024: MVP Weather Provider Selection
+
+### Context
+The initial design considered OpenWeatherMap as the primary provider.
+
+However, this introduces:
+- API key requirement
+- Additional setup complexity
+- Friction for local development and testing
+
+### Decision
+For the MVP, the system will use Open-Meteo as the initial weather provider.
+
+### Rationale
+- No API key required
+- Works out-of-the-box after cloning the repository
+- Simpler integration
+- Faster iteration
+
+### Consequences
+- API key management is postponed
+- Default rate limit is increased from 55 calls/min up to 250 calls/min
+- OpenWeatherMap remains a supported future provider
+- The system remains fully extensible for additional providers
+
+### Status
+Accepted
+
+---
+
 # QUICK REFERENCE
 
 ## Technology Stack
@@ -1311,3 +1342,4 @@ This reinforces the testing strategy defined in ADR-020.
 | 2026-04-12 | ADR-021 | Global quota protection                           | Accepted   | [🔗](#adr-021-rate-limiting-strategy-global-quota-protection) |
 | 2026-04-12 | ADR-022 | Composition root (manual DI)                      | Accepted   | [🔗](#adr-022-dependency-injection-strategy-composition-root-manual-di) |
 | 2026-04-12 | ADR-023 | Layer-first module organization                   | Accepted   | [🔗](#adr-023-module-organization--naming-convention) |
+| 2026-04-19 | ADR-024 | Open-Meteo (no API key) as MVP weather provider   | Accepted   | [🔗](#adr-024-mvp-weather-provider-selection) |

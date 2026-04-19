@@ -141,7 +141,7 @@ class WeatherProviderPort:
 
 Each provider adapter implements `WeatherProviderPort` differently depending on external API requirements.
 
-### Example: OpenWeatherMap
+### Example: Open-Meteo (MVP)
 
 Flow inside the adapter:
 
@@ -200,7 +200,7 @@ Caching is implemented using the **Decorator Pattern**.
 ```
 CachedWeatherProvider (decorator)
         ↓
-Concrete Provider (e.g., OpenWeatherMapAdapter)
+Concrete Provider (e.g., Open-Meteo, OpenWeatherMapAdapter)
         ↓
 GeocodingService (shared, with internal cache)
 ```
