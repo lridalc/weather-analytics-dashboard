@@ -65,13 +65,13 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 | Version | Focus                                    | Status |
 | :-----: | ---------------------------------------- | :----: |
-| 0.1.0   | Foundation (`/health`)                   | [x]    |
-| 0.2.0   | Current Weather API (`/weather/current`) | [ ]    |
-| 0.3.0   | Forecast System (`/weather/forecast`)    | [ ]    |
-| 0.4.0   | History Persistence (`/weather/history`) | [ ]    |
-| 0.5.0   | Retry & Resilience                       | [ ]    |
-| 0.6.0   | Caching Layer                            | [ ]    |
-| 1.0.0   | Production Release                       | [ ]    |
+| 0.1.0   | Foundation (`/health`)                   | ✅     |
+| 0.2.0   | Current Weather API (`/weather/current`) | -      |
+| 0.3.0   | Forecast System (`/weather/forecast`)    | -      |
+| 0.4.0   | History Persistence (`/weather/history`) | -      |
+| 0.5.0   | Retry & Resilience                       | -      |
+| 0.6.0   | Caching Layer                            | -      |
+| 1.0.0   | Production Release                       | -      |
 
 ---
 
@@ -433,13 +433,14 @@ make test
 
 | Variable              | Required | Default |
 | --------------------- | :------: | ------- |
-| `WEATHER_API_KEY`             | ✅       | —       |
+| `WEATHER_API_KEY`     | ✅       | —       |
 | `CACHE_TTL_WEATHER`   | ❌       | 300     |
 | `CACHE_TTL_GEOCODING` | ❌       | 604800  |
 | `CACHE_MAX_SIZE`      | ❌       | 100     |
 | `RATE_LIMIT_REQUESTS` | ❌       | 55      |
 | `RETRY_MAX_ATTEMPTS`  | ❌       | 3       |
 | `RETRY_WAIT_SECONDS`  | ❌       | 1       |
+| `ENVIRONMENT`         | ❌       | DEV     |
 | `LOG_LEVEL`           | ❌       | INFO    |
 
 ---
@@ -484,10 +485,15 @@ make cli  # Run CLI tool
 ### 🧪 Testing
 
 ```bash
-make test
+make test              # Run all tests
+make test-smoke        # Run smoke tests
+make test-bootstrap    # Run bootstrap tests
+make test-unit         # Run unit tests
+make test-integration  # Run integration tests
+make test-cov          # Run tests with coverage report
 ```
 
-Runs the full test suite with verbose output.
+All tests are run with verbose output.
 
 ---
 
@@ -502,6 +508,19 @@ make type-check   # Run mypy static type checking
 
 ---
 
+### 🔧 Git Hooks
+
+```bash
+make pre-commit                    # Install pre-commit hooks
+make pre-commit-force              # Force reinstall pre-commit hooks
+make pre-commit-all                # Run all hooks on all files
+make pre-commit-run HOOK=ruff      # Run specific hook
+make pre-commit-update             # Update hooks to latest versions
+make pre-commit-uninstall          # Uninstall pre-commit hooks
+```
+
+---
+
 ### ✅ Full project checks
 
 ```bash
@@ -510,10 +529,10 @@ make check
 
 Runs all quality checks:
 
-* Linting (ruff)
-* Formatting validation
-* Tests (pytest)
-* Type checking (mypy)
+- Linting (ruff)
+- Formatting validation (ruff)
+- Tests (pytest)
+- Type checking (mypy)
 
 ---
 
@@ -525,11 +544,21 @@ make clean
 
 Removes cache files and temporary artifacts:
 
-* `__pycache__`
-* `.pyc`
-* `.mypy_cache`
-* `.pytest_cache`
-* `.ruff_cache`
+- `__pycache__`
+- `.pyc`
+- `.mypy_cache`
+- `.pytest_cache`
+- `.ruff_cache`
+
+---
+
+### 🚢 Release
+
+```bash
+make version                      # Show current version
+make release                      # Show release process steps
+make release VERSION=0.2.0        # Execute release (creates tag, pushes, syncs branches)
+```
 
 ---
 
