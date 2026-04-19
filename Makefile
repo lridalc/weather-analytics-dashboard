@@ -1,4 +1,4 @@
-.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit pre-commit-force pre-commit-all pre-commit-run pre-commit-update pre-commit-uninstall check clean version release release-push
+.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit pre-commit-force pre-commit-all pre-commit-run pre-commit-update pre-commit-uninstall check clean version release
 
 .DEFAULT_GOAL := all
 
@@ -57,6 +57,11 @@ cli:
 # TESTING
 # ============================================================================
 
+# Run all tests with verbose output
+test:
+	@echo "$(YELLOW)🧪 Running all tests...$(NC)"
+	$(PYTEST) -v
+
 # Run smoke tests with verbose output
 test-smoke:
 	@echo "$(YELLOW)🧪 Running smoke tests...$(NC)"
@@ -77,12 +82,7 @@ test-integration:
 	@echo "$(YELLOW)🧪 Running integration tests...$(NC)"
 	$(PYTEST) tests/integration --ignore=tests/integration/bootstrap -v
 
-# Run all tests with verbose output
-test:
-	@echo "$(YELLOW)🧪 Running all tests...$(NC)"
-	$(PYTEST) -v
-
-# Run tests with coverage report
+# Run tests with coverage report with verbose output
 test-cov:
 	@echo "$(YELLOW)🧪 Running tests with coverage...$(NC)"
 	$(PYTEST) --cov=weather_analytics_dashboard --cov-report=html --cov-report=term-missing -v
@@ -208,73 +208,113 @@ version:
 release:
 	@echo "$(YELLOW)📦 Preparing release...$(NC)"
 	@echo ""
-	@echo "$(GREEN)📋 Release Checklist:$(NC)"
-	@echo "  [ ] 1. Update version in pyproject.toml"
-	@echo "  [ ] 2. Move [Unreleased] to [vX.Y.Z] in CHANGELOG.md"
-	@echo "  [ ] 3. Add date to new version (YYYY-MM-DD)"
-	@echo "  [ ] 4. Update roadmap in README.md"
-	@echo "  [ ] 5. Run final checks: make check"
+	@# Show steps always (with or without VERSION)
+	@echo "$(GREEN)📋 What 'make release VERSION=X.Y.Z' will do:$(NC)"
+	@echo "  1. Check if already on a release branch"
+	@echo "     - If YES: commit pending changes and proceed to merge"
+	@echo "     - If NO: verify clean working tree and develop branch, then create release branch"
+	@echo "  2. Show checklist for manual steps (update CHANGELOG, pyproject.toml, README, etc.)"
+	@echo "  3. Wait for user confirmation [y/N]"
+	@echo "  4. Commit changes in release branch"
+	@echo "  5. Merge release branch to main"
+	@echo "  6. Create and push tag vX.Y.Z"
+	@echo "  7. Merge main back to develop"
+	@echo "  8. Delete release branch locally"
+	@echo "  9. Push everything to remote"
 	@echo ""
 	@echo "$(YELLOW)Current version:$(NC) $(GREEN)$$(grep '^version = ' pyproject.toml | cut -d'"' -f2)$(NC)"
 	@echo ""
 	@echo "$(YELLOW)Usage:$(NC)"
-	@echo "  make release VERSION=0.2.0    	# Auto-commit and tag after manual steps"
-	@echo "  make release                   # Show this checklist only"
+	@echo "  make release VERSION=0.2.0    	# Execute release process"
+	@echo "  make release                   # Show this info and steps"
 	@echo ""
-	@# Check VERSION is provided
+	@# Check if VERSION is provided
 	@if [ -z "$(VERSION)" ]; then \
-		echo "$(RED)❌ No version provided. No release prepared$(NC)"; \
+		echo "$(YELLOW)💡 Tip: Run 'make release' without VERSION to see this anytime$(NC)"; \
+		echo "$(RED)❌ No version provided. Nothing to execute.$(NC)"; \
 		exit 0; \
 	fi
-	@# Check working tree is clean
-	@if [ -n "$$(git status --porcelain)" ]; then \
-		echo "$(RED)❌ Working tree is dirty. Commit or stash changes first$(NC)"; \
-		exit 1; \
-	fi
-	@# Check we are on develop branch
-	@if [ "$$(git branch --show-current)" != "develop" ]; then \
-		echo "$(RED)❌ You must be on develop branch to start a release. Current branch: $$(git branch --show-current)$(NC)"; \
-		exit 1; \
-	fi
-	@# Check tag doesn't already exist
+	@# Check if tag already exists
 	@if git rev-parse "v$(VERSION)" > /dev/null 2>&1; then \
-		echo "$(RED)❌ Tag v$(VERSION) already exists locally$(NC)"; \
+		echo "$(RED)❌ Tag v$(VERSION) already exists$(NC)"; \
 		exit 1; \
 	fi
-	@read -p "Have you completed steps 1-5 above? [y/N]: " confirm; \
-	if [ "$$confirm" != "y" ] && [ "$$confirm" != "Y" ]; then \
-		echo "$(RED)❌ Release cancelled. Complete checklist first.$(NC)"; \
-		exit 1; \
-	fi
-	@echo "$(YELLOW)✅ All checks passed$(NC)"
-	@echo "$(YELLOW)📦 Creating release branch...$(NC)"
-	git switch -c release/v$(VERSION) develop
-	@echo "$(YELLOW)📦 Committing release preparation...$(NC)"
-	git add pyproject.toml CHANGELOG.md README.md
-	git commit -m "chore(release): prepare v$(VERSION)" || echo "No changes to commit"
-	@echo "$(YELLOW)🔀 Merging to main...$(NC)"
-	git switch main
-	git merge --no-ff release/v$(VERSION) -m "chore(release): merge release/v$(VERSION) into main for v$(VERSION)" --no-verify
-	@# If running in CI/CD, use automatic message; otherwise open editor for manual input
-	@if [ -n "$$CI" ]; then \
-    	git tag -a "v$(VERSION)" -m "feat: release v$(VERSION)"; \
+	@# Get current branch and handle logic
+	@current_branch=$$(git branch --show-current); \
+	if [ "$$current_branch" = "develop" ]; then \
+		if [ -n "$$(git status --porcelain)" ]; then \
+			echo "$(RED)❌ Working tree has uncommitted changes. Commit or stash first.$(NC)"; \
+			exit 1; \
+		fi; \
+		echo "$(YELLOW)📦 Creating release branch release/v$(VERSION)...$(NC)"; \
+		git checkout -b release/v$(VERSION); \
+		echo ""; \
+		echo "$(GREEN)📋 Release Checklist:$(NC)"; \
+		echo "  [ ] 1. Update version to $(VERSION) in pyproject.toml"; \
+		echo "  [ ] 2. Move [Unreleased] to [v$(VERSION)] in CHANGELOG.md"; \
+		echo "  [ ] 3. Add date to new version (YYYY-MM-DD)"; \
+		echo "  [ ] 4. Update roadmap in README.md"; \
+		echo "  [ ] 5. Run final checks: make check"; \
+		echo ""; \
+		echo "$(YELLOW)💡 Make the changes above, then run: make release VERSION=$(VERSION)$(NC)"; \
+		echo "$(YELLOW)   (You are now on branch release/v$(VERSION))$(NC)"; \
+		exit 0; \
+	elif echo "$$current_branch" | grep -q "^release/"; then \
+		echo "$(YELLOW)📌 Already on release branch: $$current_branch$(NC)"; \
+		echo ""; \
+		echo "$(GREEN)📋 Release Checklist:$(NC)"; \
+		echo "  [ ] 1. Version updated to $(VERSION) in pyproject.toml?"; \
+		echo "  [ ] 2. [Unreleased] moved to [v$(VERSION)] in CHANGELOG.md?"; \
+		echo "  [ ] 3. Date added to new version (YYYY-MM-DD)?"; \
+		echo "  [ ] 4. Roadmap updated in README.md?"; \
+		echo "  [ ] 5. Final checks passed: make check?"; \
+		echo ""; \
+		read -p "Have you completed all steps above? [y/N]: " confirm; \
+		if [ "$$confirm" != "y" ] && [ "$$confirm" != "Y" ]; then \
+			echo "$(RED)❌ Release cancelled. Complete checklist first.$(NC)"; \
+			exit 1; \
+		fi; \
+		if [ -n "$$(git status --porcelain)" ]; then \
+			echo "$(YELLOW)💾 Committing pending changes...$(NC)"; \
+			git add .; \
+			git commit -m "chore(release): prepare v$(VERSION)"; \
+			echo "$(GREEN)✅ Changes committed$(NC)"; \
+		else \
+			echo "$(YELLOW)⚠️  No changes detected. Assuming already committed.$(NC)"; \
+			read -p "Continue anyway? [y/N]: " continue_anyway; \
+			if [ "$$continue_anyway" != "y" ] && [ "$$continue_anyway" != "Y" ]; then \
+				echo "$(RED)❌ Release cancelled.$(NC)"; \
+				exit 1; \
+			fi; \
+		fi; \
 	else \
-    	git tag -a "v$(VERSION)" -m "feat: release v$(VERSION)" -e; \
+		echo "$(RED)❌ You must be on 'develop' or a 'release/*' branch. Current: $$current_branch$(NC)"; \
+		exit 1; \
 	fi
-	@echo "$(YELLOW)🚀 Pushing to remote...$(NC)"
-	git push origin main --tags
-	@echo "$(YELLOW)🔄 Syncing develop with main...$(NC)"
+	@# Continue with merge and tag process (only reached if already on release branch)
+	@echo "$(YELLOW)🔀 Merging release/v$(VERSION) to main...$(NC)"
+	git switch main
+	SKIP=no-commit-to-branch git merge --no-ff release/v$(VERSION) -m "chore(release): merge release/v$(VERSION) into main for v$(VERSION)"
+	@echo "$(YELLOW)🏷️  Creating tag v$(VERSION)...$(NC)"
+	@if [ -n "$$CI" ]; then \
+		git tag -a "v$(VERSION)" -m "feat: release v$(VERSION)"; \
+	else \
+		git tag -a "v$(VERSION)" -m "feat: release v$(VERSION)" -e; \
+	fi
+	@echo "$(YELLOW)🔄 Merging main back to develop...$(NC)"
 	git switch develop
-	git merge main --no-ff -m "chore(release): merge main into develop for v$(VERSION)"
-	git push origin develop
-	@echo "$(YELLOW)🧹 Cleaning up...$(NC)"
+	git merge --no-ff main -m "chore(release): sync develop with main after v$(VERSION)"
+	@echo "$(YELLOW)🚀 Pushing to remote...$(NC)"
+	git push origin main develop --tags
+	@echo "$(YELLOW)🧹 Cleaning up local release branch...$(NC)"
 	git branch -d release/v$(VERSION)
+	@echo ""
 	@echo "$(GREEN)🎉 Release v$(VERSION) completed successfully!$(NC)"
 	@echo ""
 	@echo "$(YELLOW)📌 Summary:$(NC)"
-	@echo "  ✅ main and tags pushed to origin"
-	@echo "  ✅ develop synchronized with main"
-	@echo "  ✅ release/v$(VERSION) branch deleted"
+	@echo "  ✅ main and develop pushed to origin"
+	@echo "  ✅ tag v$(VERSION) created and pushed"
+	@echo "  ✅ release/v$(VERSION) branch deleted locally"
 	@echo "  ✅ Back on develop branch"
 
 # ============================================================================
@@ -320,8 +360,7 @@ help:
 	@echo "  make clean             - Remove cache and temporary files"
 	@echo ""
 	@echo "$(GREEN)Release:$(NC)"
-	@echo "  make release [VERSION=X.Y.Z]	- Prepare a new release"
-	@echo "  make release-push            	- Push release to remote"
+	@echo "  make release [VERSION=X.Y.Z]	- Prepare a new release and push to remote"
 	@echo "  make version                 	- Show current version"
 	@echo ""
 	@echo "make help				- Show this help message"
