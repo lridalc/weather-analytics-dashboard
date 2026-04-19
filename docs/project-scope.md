@@ -6,7 +6,7 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 ## Core Objectives
 
-- Build a reliable weather data service that integrates with OpenWeatherMap.
+- Build a reliable weather data service that integrates with Open-Meteo.
 - Implement efficient data fetching with appropriate caching strategies.
 - Provide both programmatic (API) and interactive (CLI) access to weather information.
 - Implement efficient caching to reduce external API calls and improve response times.
@@ -112,24 +112,17 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 
 ## Configuration
 
-| Variable              | Description               | Default  |
-| --------------------- | ------------------------- | -------- |
-| `WEATHER_API_KEY`             | Weather API key           | Required |
-| `CACHE_TTL_WEATHER`   | Weather TTL (seconds)     | 300      |
-| `CACHE_TTL_GEOCODING` | Geocoding TTL (seconds)   | 604800   |
-| `CACHE_MAX_SIZE`      | Max cache entries         | 100      |
-| `RETRY_MAX_ATTEMPTS`  | Max retry attempts        | 3        |
-| `RETRY_WAIT_SECONDS`  | Initial backoff (seconds) | 1        |
-| `RATE_LIMIT_REQUESTS` | Max requests per minute   | 55       |
-| `LOG_LEVEL`           | Logging verbosity         | INFO     |
-
----
-
-## Assumptions
-
-- City names are valid English strings
-- External API is mostly available (transient failures handled via retry)
-- Single-process execution
+| Variable                     | Description               | Default  |
+| ---------------------------- | ------------------------- | -------- |
+| `RATE_LIMIT_RPM`             | Max requests per minute   | 250      |
+| `CACHE_TTL_WEATHER`          | Weather TTL (seconds)     | 300      |
+| `CACHE_TTL_GEOCODING`        | Geocoding TTL (seconds)   | 604800   |
+| `CACHE_MAX_SIZE`             | Max cache entries         | 100      |
+| `REQUEST_TIMEOUT_SECONDS`    | Request timeout seconds   | 10       |
+| `RETRY_MAX_ATTEMPTS`         | Max retry attempts        | 3        |
+| `RETRY_INITIAL_WAIT_SECONDS` | Initial backoff (seconds) | 1        |
+| `ENVIRONMENT`                | Environment               | dev      |
+| `LOG_LEVEL`                  | Logging verbosity         | INFO     |
 
 ---
 
@@ -160,15 +153,6 @@ The Weather Analytics Dashboard is a portfolio project demonstrating proficiency
 4. Query history persists across restarts
 5. Retry logic handles transient failures transparently
 6. Tests pass
-
-## Project Deliverables
-
-- Source code
-- README
-- ADRs
-- API docs
-- CLI docs
-- Tests
 
 ---
 

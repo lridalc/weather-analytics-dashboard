@@ -63,13 +63,13 @@ def clear_env(request, monkeypatch):
     No need to declare it as a test argument.
     """
     env_vars = [
-        "WEATHER_API_KEY",
+        "RATE_LIMIT_RPM",
         "CACHE_TTL_WEATHER",
         "CACHE_TTL_GEOCODING",
         "CACHE_MAX_SIZE",
+        "REQUEST_TIMEOUT_SECONDS",
         "RETRY_MAX_ATTEMPTS",
-        "RETRY_WAIT_SECONDS",
-        "RATE_LIMIT_REQUESTS",
+        "RETRY_INITIAL_WAIT_SECONDS",
         "ENVIRONMENT",
         "LOG_LEVEL",
     ]
@@ -129,6 +129,6 @@ def settings(request, isolated_settings):
     Provide test settings.
     """
     return isolated_settings(
-        weather_api_key="test-key",
+        rate_limit_rpm=100,
         log_level="DEBUG",
     )

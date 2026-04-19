@@ -104,6 +104,13 @@ format:
 	$(UV_RUN) ruff format .
 	@echo "$(GREEN)✅ Code formatted!$(NC)"
 
+# Run ruff formatter in diff mode to show formatting differences without applying changes
+format-diff:
+	@echo "$(YELLOW)📝 Showing formatting differences...$(NC)"
+	@$(UV_RUN) ruff format . --diff
+	@echo "$(YELLOW)---$(NC)"
+	@echo "$(YELLOW)💡 Run 'make format' to apply these changes$(NC)"
+
 # Run ruff formatter in check mode to verify formatting without making changes
 format-check:
 	@echo "$(YELLOW)✨ Checking code format...$(NC)"

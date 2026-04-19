@@ -15,14 +15,17 @@ class TestMainFailFast:
 
     def test_main_exits_with_code_1_on_invalid_config(self, tmp_path, monkeypatch):
         """
-        Given an environment without WEATHER_API_KEY,
+        Given an environment with an invalid LOG_LEVEL,
         When main.py is executed as a module,
         Then the process should exit with code 1 (Error).
         """
-        # 1. Arrange: Clean environment without WEATHER_API_KEY due to fixtures
+        # 1. Arrange: Clean environment due to fixtures
 
         # Ensure we don't accidentally read a valid .env file
         monkeypatch.chdir(tmp_path)
+
+        # Set invalid LOG_LEVEL
+        monkeypatch.setenv("LOG_LEVEL", "error")
 
         # 2. Act: Run the module as a script
         result = subprocess.run(
@@ -38,7 +41,7 @@ class TestMainFailFast:
     def test_main_exits_with_code_0_on_valid_config(self, tmp_path, monkeypatch):
         """
         Sanity check:
-        Given a valid WEATHER_API_KEY,
+        Given a valid environment (an empty one, as there are not required variables),
         When main.py is executed,
         Then the import should succeed (exit code 0).
 
@@ -50,7 +53,7 @@ class TestMainFailFast:
             [sys.executable, "-m", "weather_analytics_dashboard.main"],
             capture_output=True,
             text=True,
-            env={"WEATHER_API_KEY": "valid-test-key"},
+            env={},
         )
 
         assert result.returncode == 0

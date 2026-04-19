@@ -2,9 +2,9 @@
 
 import logging
 import sys
+from functools import lru_cache
 
-from anyio.functools import lru_cache
-from pydantic import Field, ValidationError, field_validator
+from pydantic import Field, ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .constants import (
@@ -13,9 +13,10 @@ from .constants import (
     DEFAULT_CACHE_TTL_WEATHER,
     DEFAULT_ENVIRONMENT,
     DEFAULT_LOG_LEVEL,
-    DEFAULT_RATE_LIMIT_REQUESTS,
+    DEFAULT_RATE_LIMIT_RPM,
+    DEFAULT_REQUEST_TIMEOUT_SECONDS,
+    DEFAULT_RETRY_INITIAL_WAIT_SECONDS,
     DEFAULT_RETRY_MAX_ATTEMPTS,
-    DEFAULT_RETRY_WAIT_SECONDS,
     LOG_FORMAT,
     Environment,
     LogLevel,
@@ -37,13 +38,14 @@ class Settings(BaseSettings):
     )
 
     # =========================================================================
-    # API KEY (REQUIRED)
+    # RATE LIMITING
     # =========================================================================
 
-    weather_api_key: str = Field(
-        ...,
-        title="Weather API key",
-        description="Weather API key (required)",
+    rate_limit_rpm: int = Field(
+        default=DEFAULT_RATE_LIMIT_RPM,
+        title="Rate limit requests",
+        description="Max requests per minute",
+        ge=1,
     )
 
     # =========================================================================
@@ -75,6 +77,13 @@ class Settings(BaseSettings):
     # RESILIENCY
     # =========================================================================
 
+    request_timeout_seconds: int = Field(
+        default=DEFAULT_REQUEST_TIMEOUT_SECONDS,
+        title="Request max timeout seconds",
+        description="Max timeout seconds for a single HTTP request/response",
+        ge=0,
+    )
+
     retry_max_attempts: int = Field(
         default=DEFAULT_RETRY_MAX_ATTEMPTS,
         title="Retry max attempts",
@@ -82,23 +91,12 @@ class Settings(BaseSettings):
         ge=0,
     )
 
-    retry_wait_seconds: int = Field(
-        default=DEFAULT_RETRY_WAIT_SECONDS,
+    retry_initial_wait_seconds: int = Field(
+        default=DEFAULT_RETRY_INITIAL_WAIT_SECONDS,
         title="Retry wait seconds",
         description="Initial wait time between retries in seconds (exponential backoff,"
         "0 for no delay)",
         ge=0,
-    )
-
-    # =========================================================================
-    # RATE LIMITING
-    # =========================================================================
-
-    rate_limit_requests: int = Field(
-        default=DEFAULT_RATE_LIMIT_REQUESTS,
-        title="Rate limit requests",
-        description="Max requests per minute",
-        ge=1,
     )
 
     # =========================================================================
@@ -116,18 +114,6 @@ class Settings(BaseSettings):
         title="Log level",
         description="Logging verbosity level",
     )
-
-    # =========================================================================
-    # VALIDATORS
-    # =========================================================================
-
-    @field_validator("weather_api_key")
-    @classmethod
-    def validate_api_key(cls, v: str) -> str:
-        """Validate that Weather API key is not empty or whitespace only."""
-        if not v or not v.strip():
-            raise ValueError("WEATHER_API_KEY cannot be empty or whitespace only")
-        return v.strip()
 
 
 @lru_cache(maxsize=1)
@@ -165,7 +151,7 @@ def get_settings() -> Settings:
             logger.critical(f"  • {loc}: {msg}")
 
         logger.critical("=" * 60)
-        logger.critical("💡 Tip: Copy .env.example to .env and add your API key")
+        logger.critical("💡 Tip: Copy .env.example to .env")
         logger.critical("=" * 60)
 
         raise ConfigurationError() from e

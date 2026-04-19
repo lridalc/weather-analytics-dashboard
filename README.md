@@ -11,6 +11,9 @@ A production-style weather data service with intelligent caching, query history,
 
 > 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slice (/current endpoint) currently being implemented.
 
+> [!NOTE]
+> OpenWeatherMap was initially considered as first weather provider, but Open-Meteo has been selected as the preferred provider to simplify the MVP, as it does not require an API key. See [ADR-024](docs/decisions.md/#adr-024-mvp-weather-provider-selection).
+
 ---
 
 ## 🎯 Why This Project Exists
@@ -36,8 +39,6 @@ make install-dev
 
 # Configure environment
 cp .env.example .env
-# Add your OpenWeatherMap API key (https://openweathermap.org/api)
-# The .env file expects: WEATHER_API_KEY=your_api_key_here
 
 # Run API
 make dev
@@ -100,7 +101,7 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 - [ ] Domain models for weather
 - [ ] Use case: get current weather
-- [ ] OpenWeatherMap adapter integration
+- [ ] Open-Meteo adapter integration
 - [ ] `/weather/current` endpoint
 - [ ] CLI: `weather now <city>`
 - [ ] Full integration tests
@@ -270,7 +271,7 @@ Weather data retrieval is **provider-driven**:
 - The domain interacts with a single abstraction: `WeatherProvider`
 - Each provider implementation decides how to resolve a location
 
-### Example: OpenWeatherMap
+### Example: Open-Meteo (MVP)
 
 1. Resolve location → coordinates (via shared geocoding service)
 2. Fetch weather data using coordinates
@@ -431,17 +432,17 @@ make test
 
 ## ⚙️ Configuration
 
-| Variable              | Required | Default |
-| --------------------- | :------: | ------- |
-| `WEATHER_API_KEY`     | ✅       | —       |
-| `CACHE_TTL_WEATHER`   | ❌       | 300     |
-| `CACHE_TTL_GEOCODING` | ❌       | 604800  |
-| `CACHE_MAX_SIZE`      | ❌       | 100     |
-| `RATE_LIMIT_REQUESTS` | ❌       | 55      |
-| `RETRY_MAX_ATTEMPTS`  | ❌       | 3       |
-| `RETRY_WAIT_SECONDS`  | ❌       | 1       |
-| `ENVIRONMENT`         | ❌       | DEV     |
-| `LOG_LEVEL`           | ❌       | INFO    |
+| Variable                     | Required | Default |
+| ---------------------------- | :------: | ------- |
+| `RATE_LIMIT_RPM`             | ❌       | 250     |
+| `CACHE_TTL_WEATHER`          | ❌       | 300     |
+| `CACHE_TTL_GEOCODING`        | ❌       | 604800  |
+| `CACHE_MAX_SIZE`             | ❌       | 100     |
+| `REQUEST_TIMEOUT_SECONDS`    | ❌       | 10      |
+| `RETRY_MAX_ATTEMPTS`         | ❌       | 3       |
+| `RETRY_INITIAL_WAIT_SECONDS` | ❌       | 1       |
+| `ENVIRONMENT`                | ❌       | DEV     |
+| `LOG_LEVEL`                  | ❌       | INFO    |
 
 ---
 
@@ -502,6 +503,7 @@ All tests are run with verbose output.
 ```bash
 make lint         # Run ruff linter
 make format       # Auto-format code
+make format-diff  # Show formatting differences without applying changes
 make format-check # Check formatting without modifying files
 make type-check   # Run mypy static type checking
 ```
