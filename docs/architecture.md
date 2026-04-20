@@ -237,8 +237,8 @@ User → API/CLI → Application → WeatherProvider → (Decorator Cache) → P
 ## Application Services
 
 - GetCurrentWeatherService
-- GetForecastService
-- GetHistoryService
+- GetForecastWeatherService
+- GetQueryHistoryService
 
 ---
 
@@ -261,8 +261,8 @@ class ForecastData:
 
 ```python
 class WeatherProviderPort:
-    async def get_current(location): ...
-    async def get_forecast(location, days): ...
+    async def get_current_weather(location): ...
+    async def get_forecast_weather(location, days): ...
 
 class HistoryRepositoryPort:
     async def save(): ...
