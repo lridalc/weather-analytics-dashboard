@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
-class AppContainer:
+class Container:
     """Container holding all application dependencies.
 
     This is an immutable data holder. All dependencies are built in the bootstrap
@@ -28,7 +28,7 @@ class AppContainer:
     # Application layer (to be added in future phases)
 
 
-def bootstrap(settings: Settings | None = None) -> AppContainer:
+def bootstrap(settings: Settings | None = None) -> Container:
     """Build the application dependency graph.
 
     This is the COMPOSITION ROOT. All object construction happens here.
@@ -40,14 +40,16 @@ def bootstrap(settings: Settings | None = None) -> AppContainer:
                  If None, loads from environment/.env file.
 
     Returns:
-        AppContainer: Fully constructed dependency container.
+        Container: Fully constructed dependency container.
 
     Raises:
         ConfigurationError: If configuration validation fails (via get_settings).
     """
     # 1. Load configuration
     if settings is None:
-        settings = get_settings()  # Cached settings
+        settings = get_settings()  # Cached validated settings
+
+    assert settings is not None
 
     # 2. Configure logging (idempotent - safe to call multiple times)
     setup_logging(settings)
@@ -67,7 +69,7 @@ def bootstrap(settings: Settings | None = None) -> AppContainer:
     # 6. Build Application Services (in future phases)
 
     # 7. Assemble and return container
-    container = AppContainer(
+    container = Container(
         settings=settings,
     )
 

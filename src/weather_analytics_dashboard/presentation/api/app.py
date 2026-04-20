@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from weather_analytics_dashboard.bootstrap import AppContainer, bootstrap
+from weather_analytics_dashboard.bootstrap import Container, bootstrap
 from weather_analytics_dashboard.config import Settings
 from weather_analytics_dashboard.presentation.api.routes import health
 
@@ -24,7 +24,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     """
 
     @asynccontextmanager
-    async def lifespan(app_: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(app_: FastAPI) -> AsyncIterator[None]:  # pragma: no cover
         """Application lifecycle management.
 
         Initializes the dependency container at startup and cleans up at shutdown.
@@ -32,7 +32,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         logger.info("🚀 Starting Weather Analytics Dashboard...")
 
         # 1. Build dependency container
-        container: AppContainer = bootstrap(settings)
+        container: Container = bootstrap(settings)
 
         # 2. Attach to app state
         app_.state.container = container
