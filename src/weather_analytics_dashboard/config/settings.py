@@ -37,9 +37,9 @@ class Settings(BaseSettings):
         case_sensitive=False,
     )
 
-    # =========================================================================
+    # ==================================================================================
     # RATE LIMITING
-    # =========================================================================
+    # ==================================================================================
 
     rate_limit_rpm: int = Field(
         default=DEFAULT_RATE_LIMIT_RPM,
@@ -48,9 +48,9 @@ class Settings(BaseSettings):
         ge=1,
     )
 
-    # =========================================================================
+    # ==================================================================================
     # CACHING
-    # =========================================================================
+    # ==================================================================================
 
     cache_ttl_weather: int = Field(
         default=DEFAULT_CACHE_TTL_WEATHER,
@@ -73,9 +73,9 @@ class Settings(BaseSettings):
         ge=1,
     )
 
-    # =========================================================================
+    # ==================================================================================
     # RESILIENCY
-    # =========================================================================
+    # ==================================================================================
 
     request_timeout_seconds: int = Field(
         default=DEFAULT_REQUEST_TIMEOUT_SECONDS,
@@ -94,14 +94,16 @@ class Settings(BaseSettings):
     retry_initial_wait_seconds: int = Field(
         default=DEFAULT_RETRY_INITIAL_WAIT_SECONDS,
         title="Retry wait seconds",
-        description="Initial wait time between retries in seconds (exponential backoff,"
-        "0 for no delay)",
+        description=(
+            "Initial wait time between retries in seconds (exponential backoff, 0 for "
+            "no delay)"
+        ),
         ge=0,
     )
 
-    # =========================================================================
+    # ==================================================================================
     # OBSERVABILITY
-    # =========================================================================
+    # ==================================================================================
 
     environment: Environment = Field(
         default=DEFAULT_ENVIRONMENT,

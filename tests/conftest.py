@@ -1,9 +1,10 @@
 """Pytest configuration and shared fixtures."""
 
-import subprocess
-from pathlib import Path
+from typing import cast
 
 import pytest
+from click import Command
+from click.testing import CliRunner
 from fastapi.testclient import TestClient
 
 
@@ -23,32 +24,43 @@ def client(app):
 
 @pytest.fixture
 def cli_runner():
-    """Run CLI commands and return subprocess result."""
+    """
+    Run CLI commands in-process for integration tests.
+
+    Uses Click's CliRunner for fast execution and coverage tracking.
+    Use this for testing CLI behavior and logic.
+    """
+    from weather_analytics_dashboard.presentation.cli.main import cli
+
+    runner = CliRunner()
+
+    def _run(args: list[str]):
+        return runner.invoke(cast(Command, cli), args, catch_exceptions=False)
+
+    return _run
+
+
+@pytest.fixture
+def cli_subprocess():
+    """
+    Run CLI as subprocess for smoke tests.
+
+    Tests the actual installed entrypoint script.
+    No coverage tracking, but verifies real-world execution.
+    Use this ONLY for smoke tests.
+    """
+    import subprocess
+    from pathlib import Path
+
     project_root = Path(__file__).parent.parent
 
-    def _run(
-        args: list[str], check: bool = True, timeout: int = 10
-    ) -> subprocess.CompletedProcess | None:
-        """
-        Run CLI command and return the result.
-
-        Args:
-            args: Command arguments
-            check: If True, raises CalledProcessError on failure
-
-        Returns:
-            CompletedProcess: Command result (only when check=False or command succeeds)
-
-        Raises:
-            subprocess.CalledProcessError: If check=True and command fails
-        """
+    def _run(args: list[str], check: bool = True):
         return subprocess.run(
             ["uv", "run", "weather"] + args,
             capture_output=True,
             text=True,
             cwd=project_root,
             check=check,
-            timeout=timeout,
         )
 
     return _run

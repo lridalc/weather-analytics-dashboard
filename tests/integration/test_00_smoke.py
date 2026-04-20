@@ -9,16 +9,16 @@ This file should remain minimal - only what's needed for fast CI gate.
 
 
 class TestSmoke:
-    def test_cli_entrypoint_no_args(self, cli_runner):
+    def test_cli_entrypoint_no_args(self, cli_subprocess):
         """Verify CLI entrypoint works without crashing."""
-        result = cli_runner([])
+        result = cli_subprocess([])
         # check=True already validates returncode
         # Explicit assert improves readability
         assert result.returncode == 0
 
-    def test_cli_entrypoint_help(self, cli_runner):
+    def test_cli_entrypoint_help(self, cli_subprocess):
         """Verify CLI --help entrypoint works without crashing."""
-        result = cli_runner(["--help"])
+        result = cli_subprocess(["--help"])
         # check=True already validates returncode
         # Explicit assert improves readability
         assert result.returncode == 0

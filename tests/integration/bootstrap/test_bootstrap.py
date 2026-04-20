@@ -16,7 +16,7 @@ We explicitly avoid testing:
 
 import pytest
 
-from weather_analytics_dashboard.bootstrap import AppContainer, bootstrap
+from weather_analytics_dashboard.bootstrap import Container, bootstrap
 
 
 class TestBootstrap:
@@ -27,10 +27,10 @@ class TestBootstrap:
     # =========================================================================
 
     def test_bootstrap_returns_app_container(self, settings):
-        """bootstrap() should return a valid AppContainer."""
+        """bootstrap() should return a valid Container."""
         container = bootstrap(settings=settings)
 
-        assert isinstance(container, AppContainer)
+        assert isinstance(container, Container)
 
     def test_bootstrap_uses_provided_settings(self, settings):
         """bootstrap() should use explicitly provided settings."""
@@ -108,10 +108,9 @@ class TestBootstrap:
     # =========================================================================
 
     def test_bootstrap_propagates_configuration_errors(self, monkeypatch):
-        # Invalid RATE_LIMIT_RPM
-        monkeypatch.setenv("RATE_LIMIT_RPM", "-1")
-
         """bootstrap() should propagate configuration errors."""
+        monkeypatch.setenv("RATE_LIMIT_RPM", "invalid-value")
+
         from weather_analytics_dashboard.config import ConfigurationError
 
         with pytest.raises(ConfigurationError):
