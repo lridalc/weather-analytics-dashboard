@@ -1,13 +1,16 @@
 """Unit tests for GetCurrentWeatherService."""
 
-from unittest.mock import AsyncMock
+from datetime import UTC, datetime
+from unittest.mock import AsyncMock, create_autospec
 
 import pytest
-from weather_analytics_dashboard.application.services.get_current_weather import (
-    GetCurrentWeatherService,
+
+from weather_analytics_dashboard.application import GetCurrentWeatherService
+from weather_analytics_dashboard.domain import (
+    LocationNotFoundError,
+    WeatherData,
+    WeatherProviderPort,
 )
-from weather_analytics_dashboard.domain.exceptions import LocationNotFoundError
-from weather_analytics_dashboard.domain.models import WeatherData
 
 
 class TestGetCurrentWeatherService:
@@ -16,8 +19,8 @@ class TestGetCurrentWeatherService:
     @pytest.fixture
     def mock_weather_provider(self):
         """Create a mock weather provider port."""
-        mock = AsyncMock()
-        mock.get_current = AsyncMock()
+        mock = create_autospec(WeatherProviderPort, instance=True)
+        mock.get_current_weather = AsyncMock()
         return mock
 
     @pytest.mark.asyncio
@@ -31,9 +34,9 @@ class TestGetCurrentWeatherService:
         expected_data = WeatherData(
             location="Madrid",
             temperature=22.0,
-            timestamp="2026-04-20T12:00:00Z",
+            timestamp=datetime(2026, 4, 20, 12, 0, 0, tzinfo=UTC),
         )
-        mock_weather_provider.get_current.return_value = expected_data
+        mock_weather_provider.get_current_weather.return_value = expected_data
 
         service = GetCurrentWeatherService(mock_weather_provider)
 
@@ -42,7 +45,7 @@ class TestGetCurrentWeatherService:
 
         # Assert
         assert result == expected_data
-        mock_weather_provider.get_current.assert_awaited_once_with("Madrid")
+        mock_weather_provider.get_current_weather.assert_awaited_once_with("Madrid")
 
     @pytest.mark.asyncio
     async def test_execute_propagates_location_not_found_error(
@@ -50,7 +53,7 @@ class TestGetCurrentWeatherService:
     ):
         """Service should propagate LocationNotFoundError when provider raises it."""
         # Arrange
-        mock_weather_provider.get_current.side_effect = LocationNotFoundError(
+        mock_weather_provider.get_current_weather.side_effect = LocationNotFoundError(
             "UnknownCity"
         )
 
@@ -60,5 +63,7 @@ class TestGetCurrentWeatherService:
         with pytest.raises(LocationNotFoundError) as exc_info:
             await service.execute("UnknownCity")
 
-        assert str(exc_info.value) == "UnknownCity"
-        mock_weather_provider.get_current.assert_awaited_once_with("UnknownCity")
+        assert str(exc_info.value.location) == "UnknownCity"
+        mock_weather_provider.get_current_weather.assert_awaited_once_with(
+            "UnknownCity"
+        )
