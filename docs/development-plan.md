@@ -253,11 +253,11 @@ git tag -a "v0.1.0" -m "feat: release v0.1.0 - health endpoint working"
 
 **Branch:** `feat/2-weather-current-domain-application`
 
-| Commit | Message                                                                |
-| :----: | ---------------------------------------------------------------------- |
-| 1      | `test(application): add failing test for get current weather use case` |
-| 2      | `feat(domain): add weather domain models and exceptions`               |
-| 3      | `feat(application): implement current weather service`                 |
+| Commit | Message                                                                 |
+| :----: | ----------------------------------------------------------------------- |
+| 1      | `test(application): add failing tests for get current weather use case` |
+| 2      | `feat(domain): add weather domain models and exceptions`                |
+| 3      | `feat(application): implement current weather service`                  |
 
 **Merge to develop:**
 ```bash
