@@ -264,7 +264,24 @@ git tag -a "v0.1.0" -m "feat: release v0.1.0 - health endpoint working"
 git merge --no-ff feat/2-weather-current-domain-application -m "feat: merge current weather domain and application layer into develop"
 ```
 
-### Subphase 9.2 - API Endpoint
+### Subphase 9.2 - Infrastructure Layer
+
+**Branch:** `feat/2-weather-current-infra`
+
+| Commit | Message                                                              |
+| :----: | -------------------------------------------------------------------- |
+| 1      | `test(infra): add failing test for GeocodingService`                 |
+| 2      | `feat(infra): implement GeocodingService with in-memory cache`       |
+| 3      | `test(infra): add failing test for OpenMeteoAdapter with httpx mock` |
+| 4      | `feat(infra): implement OpenMeteoAdapter using GeocodingService`     |
+| 5      | `chore(bootstrap): wire OpenMeteoAdapter into container`             |
+
+**Merge to develop:**
+```bash
+git merge --no-ff feat/2-weather-current-infra -m "feat: merge Open-Meteo adapter for current weather into develop"
+```
+
+### Subphase 9.3 - API Endpoint
 
 **Branch:** `feat/2-weather-current-api`
 
@@ -272,26 +289,12 @@ git merge --no-ff feat/2-weather-current-domain-application -m "feat: merge curr
 | :----: | --------------------------------------------------------------- |
 | 1      | `test(api): add failing test for GET /weather/current endpoint` |
 | 2      | `feat(api): implement GET /weather/current endpoint`            |
-| 3      | `chore(api): wire dependencies for weather current flow`        |
+| 3      | `feat(api): add error mapping (domain → HTTP status codes)`     |
+| 4      | `chore(api): wire dependencies via container`                   |
 
 **Merge to develop:**
 ```bash
 git merge --no-ff feat/2-weather-current-api -m "feat: merge current weather API endpoint into develop"
-```
-
-### Subphase 9.3 - Infrastructure Layer
-
-**Branch:** `feat/2-weather-current-infra`
-
-| Commit | Message                                                    |
-| :----: | ---------------------------------------------------------- |
-| 1      | `test(infra): add failing test for Open-Meteo adapter`     |
-| 2      | `feat(infra): implement Open-Meteo adapter`                |
-| 3      | `chore(infra): wire dependencies for weather current flow` |
-
-**Merge to develop:**
-```bash
-git merge --no-ff feat/2-weather-current-infra -m "feat: merge Open-Meteo adapter for current weather into develop"
 ```
 
 ### Subphase 9.4 - CLI Command
@@ -300,8 +303,8 @@ git merge --no-ff feat/2-weather-current-infra -m "feat: merge Open-Meteo adapte
 
 | Commit | Message                                                             |
 | :----: | ------------------------------------------------------------------- |
-| 1      | `test(cli): add failing test for 'weather now <city>'`              |
-| 2      | `feat(cli): implement weather now command`                          |
+| 1      | `test(cli): add failing test for 'weather now' command`             |
+| 2      | `feat(cli): implement 'weather now' command`                        |
 | 3      | `refactor: improve boundaries and naming for weather current slice` |
 
 **Merge to develop:**
@@ -328,58 +331,61 @@ git tag -a "v0.2.0" -m "feat: release v0.2.0 - current weather endpoint working"
 
 **Branch:** `feat/3-weather-forecast-domain-application`
 
-| Commit | Message                                          |
-| :----: | ------------------------------------------------ |
-| 1      | `test(application): add forecast use case tests` |
-| 2      | `feat(application): implement forecast service`  |
+| Commit | Message                                                               |
+| :----: | --------------------------------------------------------------------- |
+| 1      | `feat(domain): add ForecastData model and extend WeatherProviderPort` |
+| 2      | `test(application): add GetForecastWeatherService tests`              |
+| 3      | `feat(application): implement GetForecastWeatherService`              |
 
 **Merge to develop:**
 ```bash
 git merge --no-ff feat/3-weather-forecast-domain-application -m "feat: merge forecast domain and application layer into develop"
 ```
 
-### Subphase 10.2 - API Endpoint
+### Subphase 10.2 - Infrastructure Layer
+
+**Branch:** `feat/3-weather-forecast-infra`
+
+| Commit | Message                                                       |
+| :----: | ------------------------------------------------------------- |
+| 1      | `test(infra): add OpenMeteoAdapter forecast tests`            |
+| 2      | `feat(infra): extend OpenMeteoAdapter with forecast support`  |
+| 3      | `chore(bootstrap): wire forecast dependencies into container` |
+
+**Merge to develop:**
+```bash
+git merge --no-ff feat/3-weather-forecast-infra -m "feat: merge Open-Meteo forecast support into develop"
+```
+
+### Subphase 10.3 - API Endpoint
 
 **Branch:** `feat/3-weather-forecast-api`
 
-| Commit | Message                                           |
-| :----: | ------------------------------------------------- |
-| 1      | `test(api): add forecast endpoint tests`          |
-| 2      | `feat(api): implement GET /weather/forecast`      |
-| 3      | `chore(api): wire dependencies for forecast flow` |
+| Commit | Message                                                           |
+| :----: | ----------------------------------------------------------------- |
+| 1      | `test(api): add failing tests for GET /weather/forecast endpoint` |
+| 2      | `feat(api): implement GET /weather/forecast endpoint`             |
+| 3      | `feat(api): add forecast-specific error mapping`                  |
+| 4      | `chore(api): wire forecast dependencies via container`            |
 
 **Merge to develop:**
 ```bash
 git merge --no-ff feat/3-weather-forecast-api -m "feat: merge forecast API endpoint into develop"
 ```
 
-### Subphase 10.3 - CLI Command
+### Subphase 10.4 - CLI Command
 
 **Branch:** `feat/3-weather-forecast-cli`
 
-| Commit | Message                                              |
-| :----: | ---------------------------------------------------- |
-| 1      | `test(cli): add forecast command tests`              |
-| 2      | `feat(cli): implement weather forecast command`      |
-| 3      | `chore(cli): wire dependencies for forecast command` |
+| Commit | Message                                                                   |
+| :----: | ------------------------------------------------------------------------- |
+| 1      | `test(cli): add failing test for 'weather forecast' command`              |
+| 2      | `feat(cli): implement 'weather forecast' command with --days option`      |
+| 3      | `refactor(cli): improve forecast output formatting`                       |
 
 **Merge to develop:**
 ```bash
 git merge --no-ff feat/3-weather-forecast-cli -m "feat: merge forecast CLI command into develop"
-```
-
-### Subphase 10.4 - Infrastructure Layer
-
-**Branch:** `feat/3-weather-forecast-infra`
-
-| Commit | Message                                              |
-| :----: | ---------------------------------------------------- |
-| 1      | `feat(infra): extend provider with forecast support` |
-| 2      | `chore(infra): wire forecast provider dependencies`  |
-
-**Merge to develop:**
-```bash
-git merge --no-ff feat/3-weather-forecast-infra -m "feat: merge Open-Meteo forecast support into develop"
 ```
 
 **Prepare release**
@@ -403,8 +409,9 @@ git tag -a "v0.3.0" -m "feat: release v0.3.0 - forecast endpoint working"
 
 | Commit | Message                                                            |
 | :----: | ------------------------------------------------------------------ |
-| 1      | `test(domain): define history repository contract tests`           |
+| 1      | `test(domain): define HistoryRepositoryPort contract tests`        |
 | 2      | `feat(domain): add history domain models and repository interface` |
+| 3      | `feat(domain): add domain exceptions for history operations`       |
 
 **Merge to develop:**
 ```bash
@@ -415,11 +422,12 @@ git merge --no-ff feat/4-weather-history-domain-contracts -m "feat: merge histor
 
 **Branch:** `feat/4-weather-history-infra`
 
-| Commit | Message                                             |
-| :----: | --------------------------------------------------- |
-| 1      | `test(infra): add sqlite history repository tests`  |
-| 2      | `feat(infra): implement sqlite history repository`  |
-| 3      | `chore(infra): wire sqlite repository dependencies` |
+| Commit | Message                                                                |
+| :----: | ---------------------------------------------------------------------- |
+| 1      | `test(infra): add sqlite history repository tests`                     |
+| 2      | `feat(infra): implement sqlite history repository with aiosqlite`      |
+| 3      | `feat(infra): add FIFO eviction (max 10 entries per city)`             |
+| 4      | `chore(bootstrap): wire sqlite repository dependencies into container` |
 
 **Merge to develop:**
 ```bash
@@ -430,11 +438,12 @@ git merge --no-ff feat/4-weather-history-infra -m "feat: merge SQLite history re
 
 **Branch:** `feat/4-weather-history-application`
 
-| Commit | Message                                                  |
-| :----: | -------------------------------------------------------- |
-| 1      | `test(application): add history service tests`           |
-| 2      | `feat(application): implement history retrieval service` |
-| 3      | `chore(application): wire history service dependencies`  |
+| Commit | Message                                                              |
+| :----: | -------------------------------------------------------------------- |
+| 1      | `test(application): add history service tests`                       |
+| 2      | `feat(application): implement history retrieval service`             |
+| 3      | `feat(application): extend GetCurrentWeatherService to save queries` |
+| 4      | `chore(application): wire history service dependencies`              |
 
 **Merge to develop:**
 ```bash
@@ -445,11 +454,12 @@ git merge --no-ff feat/4-weather-history-application -m "feat: merge history app
 
 **Branch:** `feat/4-weather-history-api`
 
-| Commit | Message                                          |
-| :----: | ------------------------------------------------ |
-| 1      | `test(api): add history endpoint tests`          |
-| 2      | `feat(api): implement GET /weather/history`      |
-| 3      | `chore(api): wire history endpoint dependencies` |
+| Commit | Message                                                          |
+| :----: | ---------------------------------------------------------------- |
+| 1      | `test(api): add failing tests for GET /weather/history endpoint` |
+| 2      | `feat(api): implement GET /weather/history endpoint`             |
+| 3      | `feat(api): add history-specific error mapping`                  |
+| 4      | `chore(bootstrap): wire history endpoint dependencies`           |
 
 **Merge to develop:**
 ```bash
@@ -460,11 +470,11 @@ git merge --no-ff feat/4-weather-history-api -m "feat: merge history API endpoin
 
 **Branch:** `feat/4-weather-history-cli`
 
-| Commit | Message                                         |
-| :----: | ----------------------------------------------- |
-| 1      | `test(cli): add history command tests`          |
-| 2      | `feat(cli): implement weather history command`  |
-| 3      | `chore(cli): wire history command dependencies` |
+| Commit | Message                                                      |
+| :----: | ------------------------------------------------------------ |
+| 1      | `test(cli): add failing tests for 'weather history' command` |
+| 2      | `feat(cli): implement 'weather history' command`             |
+| 3      | `refactor(cli): improve history output formatting`           |
 
 **Merge to develop:**
 ```bash
@@ -488,11 +498,13 @@ git tag -a "v0.4.0" -m "feat: release v0.4.0 - history endpoint working (all end
 
 **Branch:** `feat/5-retry-http`
 
-| Commit | Message                                                    |
-| :----: | ---------------------------------------------------------- |
-| 1      | `test(infra): add retry behavior tests`                    |
-| 2      | `feat(infra): implement http client with retry (tenacity)` |
-| 3      | `chore(infra): wire retry http client into provider`       |
+| Commit | Message                                                                     |
+| :----: | --------------------------------------------------------------------------- |
+| 1      | `test(infra): add retry behavior tests with tenacity`                       |
+| 2      | `feat(infra): implement HttpClient with exponential backoff retry`          |
+| 3      | `feat(infra): add rate limiting to HttpClient (global quota protection)`    |
+| 4      | `refactor(infra): migrate OpenMeteoAdapter to use retry-enabled HttpClient` |
+| 5      | `chore(infra): wire retry http client into provider`                        |
 
 **Merge to develop:**
 ```bash
@@ -516,12 +528,13 @@ git tag -a "v0.5.0" -m "feat: release v0.5.0 - retry working"
 
 **Branch:** `feat/6-caching`
 
-| Commit | Message                                             |
-| :----: | --------------------------------------------------- |
-| 1      | `test(infra): add caching decorator tests`          |
-| 2      | `feat(infra): implement cached weather provider`    |
-| 3      | `test(integration): verify cache hit/miss behavior` |
-| 4      | `chore(infra): wire cached provider`                |
+| Commit | Message                                                       |
+| :----: | ------------------------------------------------------------- |
+| 1      | `test(infra): add CachedWeatherProvider decorator tests`      |
+| 2      | `feat(infra): implement CachedWeatherProvider with TTL`       |
+| 3      | `feat(infra): add FIFO eviction for weather cache`            |
+| 4      | `test(infra): add cache hit/miss integration tests`           |
+| 5      | `chore(bootstrap): wire CachedWeatherProvider into container` |
 
 **Merge to develop:**
 ```bash

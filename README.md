@@ -9,7 +9,10 @@
 
 A production-style weather data service with intelligent caching, query history, and dual interfaces (REST API + CLI). Built to demonstrate **clean architecture, async Python, and real-world backend patterns**.
 
+> [!IMPORTANT]
 > 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slice (/current endpoint) currently being implemented.
+
+[![CI Pipeline](https://github.com/lridalc/weather-analytics-dashboard/actions/workflows/ci.yaml/badge.svg)](https://github.com/lridalc/weather-analytics-dashboard/actions/workflows/ci.yaml)
 
 > [!NOTE]
 > OpenWeatherMap was initially considered as first weather provider, but Open-Meteo has been selected as the preferred provider to simplify the MVP, as it does not require an API key. See [ADR-024](docs/decisions.md/#adr-024-mvp-weather-provider-selection).
@@ -67,7 +70,7 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 | Version | Focus                                    | Status |
 | :-----: | ---------------------------------------- | :----: |
 | 0.1.0   | Foundation (`/health`)                   | ✅     |
-| 0.2.0   | Current Weather API (`/weather/current`) | -      |
+| 0.2.0   | Current Weather API (`/weather/current`) | 🚧     |
 | 0.3.0   | Forecast System (`/weather/forecast`)    | -      |
 | 0.4.0   | History Persistence (`/weather/history`) | -      |
 | 0.5.0   | Retry & Resilience                       | -      |
@@ -99,10 +102,11 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 #### Current Weather (Vertical Slice #1)
 
-- [ ] Domain models for weather
-- [ ] Use case: get current weather
+- [x] Domain models for weather
+- [x] Use case: get current weather
+- [x] Geocoding service (shared infrastructure)
 - [ ] Open-Meteo adapter integration
-- [ ] `/weather/current` endpoint
+- [ ] `/weather/current` endpoint with error mapping
 - [ ] CLI: `weather now <city>`
 - [ ] Full integration tests
 
@@ -110,41 +114,42 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 #### Forecast (Vertical Slice #2)
 
-- [ ] Forecast domain logic
+- [ ] Forecast domain model
 - [ ] Forecast use case implementation
-- [ ] `/weather/forecast` endpoint
-- [ ] CLI: `weather forecast <city>`
-- [ ] External API extension for forecasts
+- [ ] Open-Meteo adapter extension for forecasts
+- [ ] `/weather/forecast` endpoint with error mapping
+- [ ] CLI: `weather forecast <city> --days N`
 
 ---
 
 #### History System (Vertical Slice #3)
 
-- [ ] SQLite schema + repository
-- [ ] Persist query history
-- [ ] `/weather/history` endpoint
+- [ ] History domain contracts (port + models)
+- [ ] SQLite repository with aiosqlite
+- [ ] FIFO eviction (max 10 entries per city)
+- [ ] History retrieval service
+- [ ] Automatic query persistence on current
+- [ ] `/weather/history` endpoint with error mapping
 - [ ] CLI: `weather history <city>`
-- [ ] FIFO cleanup (max 10 entries)
 
 ---
 
 #### Resilience & Retry Logic
 
-- [ ] Retry mechanism with exponential backoff
-- [ ] Configurable retry settings
-- [ ] Handling 5xx and timeout errors
-- [ ] Failure simulation tests
+- [ ] HTTP client with exponential backoff (tenacity)
+- [ ] Global rate limiting (quota protection)
+- [ ] Migration of OpenMeteoAtapter to retry-enabled client
+- [ ] Retry only on transient errors (5xx, timeouts)
 
 ---
 
 #### Caching Layer
 
-- [ ] Weather cache (5 min TTL)
-- [ ] Geocoding cache (7 days TTL)
-- [ ] FIFO eviction strategy
-- [ ] Cache decorator implementation
-- [ ] Cache hit/miss tests
-- [ ] Cached fallback on failure
+- [ ] Weather cache decorator (5 min TTL)
+- [ ] FIFO eviction for weather cache
+- [ ] Geocoding cache (7 days TTL, internal to service)
+- [ ] Cache hit/miss integration tests
+- [ ] Dependency wiring for cached provider
 
 ---
 
@@ -297,13 +302,18 @@ The current structure is the foundational layer. The system will evolve incremen
 │   └── project-scope.md
 │
 ├── src/weather_analytics_dashboard/
+│   ├── application/                       # Use cases (business workflows)
+│   │   └── services/
+│   │       └── get_current_weather.py
 │   ├── config/                            # Configuration, settings, constants, and exceptions
 │   │   ├── constants.py
 │   │   ├── exceptions.py
 │   │   ├── logging.py
 │   │   └── settings.py
-│   ├── application/                       # Use cases (business workflows)
 │   ├── domain/                            # Core business logic and models
+│   │   ├── exceptions.py
+│   │   ├── models.py
+│   │   └── ports.py
 │   ├── infrastructure/                    # External systems (DB, APIs, cache)
 │   ├── presentation/                      # Interfaces (API + CLI)
 │   │   ├── api/
@@ -319,9 +329,6 @@ The current structure is the foundational layer. The system will evolve incremen
 │   └── main.py                            # Application entry point
 │
 ├── tests/
-│   ├── unit/                              # Unit tests (domain & services)
-│   │   └── config/
-│   │       └── test_settings.py
 │   ├── integration/                       # Integration tests (API, DB)
 │   │   ├── bootstrap/
 │   │   ├── config/
@@ -329,6 +336,9 @@ The current structure is the foundational layer. The system will evolve incremen
 │   │   │   ├── api/
 │   │   │   └── cli/
 │   │   └── test_00_smoke.py
+│   ├── unit/                              # Unit tests (domain & services)
+│   │   └── config/
+│   │       └── test_settings.py
 │   └── conftest.py                        # Pytest fixtures and configuration
 │
 ├── .github/                               # CI/CD workflows, actions, and PR templates
@@ -460,13 +470,16 @@ make test
 
 This project uses a `Makefile` to standardize development workflows and ensure consistency across environments.
 
-> 💡 All commands are executed via `uv run`, so you don’t need to manually activate a virtual environment.
+> [!TIP]  
+> Running `make` without arguments shows all availble commands (equivalent to `make help`).  
+> 💡 All commands use `uv run` internally, so you don’t need to manually activate a virtual environment.
 
 ---
 
 ### 📦 Installation
 
 ```bash
+make all          # Install everything necessary for development (install-dev + pre-commit)
 make install      # Install production dependencies
 make install-dev  # Install all dependencies including development tools
 ```
@@ -564,13 +577,21 @@ make release VERSION=0.2.0        # Execute release (creates tag, pushes, syncs 
 
 ---
 
+### 🚦 CI Validation
+
+```bash
+make ci                           # Run complete CI pipeline locally (same as GitHub Actions)
+``
+
+---
+
 ### 📋 Help
 
 ```bash
 make help
 ```
 
-Displays all available commands.
+Displays all available commands (default).
 
 ---
 
