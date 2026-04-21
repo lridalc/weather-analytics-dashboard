@@ -581,7 +581,7 @@ make release VERSION=0.2.0        # Execute release (creates tag, pushes, syncs 
 
 ```bash
 make ci                           # Run complete CI pipeline locally (same as GitHub Actions)
-``
+```
 
 ---
 
