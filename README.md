@@ -10,7 +10,7 @@
 A production-style weather data service with intelligent caching, query history, and dual interfaces (REST API + CLI). Built to demonstrate **clean architecture, async Python, and real-world backend patterns**.
 
 > [!IMPORTANT]
-> 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slice (/current endpoint) currently being implemented.
+> 🚧 **PROJECT STATUS:** Architecture and documentation completed. Development in progress — vertical slice (/weather/current endpoint) currently being implemented.
 
 [![CI Pipeline](https://github.com/lridalc/weather-analytics-dashboard/actions/workflows/ci.yaml/badge.svg)](https://github.com/lridalc/weather-analytics-dashboard/actions/workflows/ci.yaml)
 
@@ -104,7 +104,7 @@ This project follows a **vertical-slice, test-driven development approach**, whe
 
 - [x] Domain models for weather
 - [x] Use case: get current weather
-- [x] Geocoding service (shared infrastructure)
+- [ ] Geocoding service (shared infrastructure)
 - [ ] Open-Meteo adapter integration
 - [ ] `/weather/current` endpoint with error mapping
 - [ ] CLI: `weather now <city>`
