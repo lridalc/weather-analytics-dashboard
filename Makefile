@@ -1,6 +1,6 @@
-.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit pre-commit-force pre-commit-all pre-commit-run pre-commit-update pre-commit-uninstall check clean version release
+.PHONY: help all install install-dev dev run cli test test-smoke test-bootstrap test-unit test-integration test-cov lint format format-check type-check pre-commit pre-commit-force pre-commit-all pre-commit-run pre-commit-update pre-commit-uninstall check clean version release ci
 
-.DEFAULT_GOAL := all
+.DEFAULT_GOAL := help
 
 # ============================================================================
 # VARIABLES
@@ -14,14 +14,11 @@ YELLOW := \033[1;33m
 NC := \033[0m # No Color
 
 # ============================================================================
-# DEFAULT
-# ============================================================================
-
-all: install-dev
-
-# ============================================================================
 # INSTALLING
 # ============================================================================
+
+# Install everything necessary for development (install-dev + pre-commit)
+all: install-dev pre-commit
 
 # Install dependencies in the virtual environment
 install:
@@ -324,6 +321,32 @@ release:
 	@echo "  ✅ release/v$(VERSION) branch deleted locally"
 	@echo "  ✅ Back on develop branch"
 
+
+# ============================================================================
+# CI VALIDATION
+# ============================================================================
+
+# Run complete CI pipeline locally (same as GitHub Actions)
+ci:
+	@echo "$(YELLOW)🔍 Running CI pipeline locally...$(NC)"
+	@echo ""
+	@echo "$(GREEN)📋 Phase 1: Code Quality$(NC)"
+	@$(MAKE) --no-print-directory lint || exit 1
+	@$(MAKE) --no-print-directory format-check || exit 1
+	@$(MAKE) --no-print-directory type-check || exit 1
+	@echo ""
+	@echo "$(GREEN)📋 Phase 2: Smoke & Bootstrap$(NC)"
+	@$(MAKE) --no-print-directory test-smoke || exit 1
+	@$(MAKE) --no-print-directory test-bootstrap || exit 1
+	@echo ""
+	@echo "$(GREEN)📋 Phase 3: Unit Tests$(NC)"
+	@$(MAKE) --no-print-directory test-unit || exit 1
+	@echo ""
+	@echo "$(GREEN)📋 Phase 4: Integration Tests$(NC)"
+	@$(MAKE) --no-print-directory test-integration || exit 1
+	@echo ""
+	@echo "$(GREEN)🎉 All CI checks passed!$(NC)"
+
 # ============================================================================
 # HELP
 # ============================================================================
@@ -332,6 +355,7 @@ help:
 	@echo "$(YELLOW)Available commands:$(NC)"
 	@echo ""
 	@echo "$(GREEN)Installation:$(NC)"
+	@echo "  make all               - Install everything necessary for development"
 	@echo "  make install           - Install production dependencies"
 	@echo "  make install-dev       - Install development dependencies"
 	@echo ""
@@ -369,6 +393,9 @@ help:
 	@echo "$(GREEN)Release:$(NC)"
 	@echo "  make release [VERSION=X.Y.Z]	- Prepare a new release and push to remote"
 	@echo "  make version                 	- Show current version"
+	@echo ""
+	@echo "$(GREEN)CI:$(NC)"
+	@echo "  make ci                 - Run complete CI pipeline locally"
 	@echo ""
 	@echo "make help				- Show this help message"
 	@echo ""
